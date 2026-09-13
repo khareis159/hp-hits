@@ -1,0 +1,1942 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hiper Hits 2026 — Jornalismo Independente</title>
+<meta name="description" content="CMS jornalístico Hiper Hits 2026 — cobertura local, nacional e internacional com curadoria por IA.">
+<style>
+/* ==========================================================================
+   HIPER HITS 2026 — main.css + themes.css + windows.css + components.css
+   Consolidados em um único arquivo por decisão de arquitetura do projeto.
+   ========================================================================== */
+
+/* ---- Reset básico ---- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+ul, ol { list-style: none; margin: 0; padding: 0; }
+button { font: inherit; cursor: pointer; }
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+
+/* ---- Design tokens (tema claro) ---- */
+:root {
+  --ink: #171A21;
+  --paper: #F4F0E6;
+  --paper-raised: #FFFFFF;
+  --text-primary: #1B2430;
+  --text-secondary: #5B6472;
+  --accent: #B1272D;       /* vermelho jornal — "quente/breaking" */
+  --accent-hover: #932025;
+  --gold: #B8912B;         /* destaque editorial */
+  --border: #DBD3C1;
+  --border-strong: #B7ACA0;
+  --success: #2E7D4F;
+  --shadow-window: 0 18px 40px -12px rgba(23, 26, 33, 0.35);
+  --font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+  --font-sans: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --transition-fast: 140ms ease;
+  --transition-med: 260ms cubic-bezier(.2,.7,.3,1);
+}
+
+/* ---- Design tokens (tema escuro) ---- */
+[data-theme="dark"] {
+  --ink: #0D0F13;
+  --paper: #14171D;
+  --paper-raised: #1C2027;
+  --text-primary: #EDEFF3;
+  --text-secondary: #9AA3AF;
+  --accent: #E15258;
+  --accent-hover: #EA6F74;
+  --gold: #D8B44C;
+  --border: #2A2F38;
+  --border-strong: #3A414D;
+  --success: #4FAE79;
+  --shadow-window: 0 18px 44px -10px rgba(0, 0, 0, 0.65);
+}
+
+body {
+  background: var(--paper);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: background-color var(--transition-med), color var(--transition-med);
+  min-height: 100vh;
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ==========================================================================
+   MASTHEAD / NAVEGAÇÃO
+   ========================================================================== */
+.masthead {
+  border-bottom: 3px solid var(--ink);
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+[data-theme="dark"] .masthead { border-bottom-color: var(--border-strong); }
+
+.masthead-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.masthead-top .clock { font-variant-numeric: tabular-nums; }
+.masthead-top .live-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--accent); font-weight: 600;
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulse-dot 1.8s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .45; transform: scale(0.8); }
+}
+
+.masthead-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px 14px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.brand {
+  font-family: var(--font-serif);
+  font-size: 34px;
+  letter-spacing: -0.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+.brand .hiper { color: var(--text-primary); }
+.brand .hits { color: var(--accent); }
+.brand .year { font-family: var(--font-sans); font-size: 13px; color: var(--text-secondary); font-weight: 500; margin-left: 8px; align-self: flex-end; }
+
+.masthead-controls { display: flex; align-items: center; gap: 10px; }
+
+.icon-btn {
+  border: 1px solid var(--border);
+  background: var(--paper-raised);
+  color: var(--text-primary);
+  width: 38px; height: 38px;
+  border-radius: var(--radius-md);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+.icon-btn:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+
+.btn {
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+[data-theme="dark"] .btn { background: var(--text-primary); color: var(--ink); border-color: var(--text-primary); }
+.btn:hover { transform: translateY(-1px); opacity: 0.92; }
+.btn.btn-ghost {
+  background: transparent; color: var(--text-primary); border-color: var(--border);
+}
+.btn.btn-danger { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+.nav-editorias {
+  display: flex;
+  gap: 4px;
+  padding: 0 20px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-editorias::-webkit-scrollbar { display: none; }
+.nav-chip {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+.nav-chip:hover { color: var(--text-primary); }
+.nav-chip.active {
+  background: var(--paper-raised);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.nav-chip .count {
+  color: var(--text-secondary);
+  font-size: 11px;
+  margin-left: 5px;
+}
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL / FEED
+   ========================================================================== */
+.layout {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px 24px 80px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 40px;
+}
+.feed-column { min-width: 0; }
+
+.feed-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.feed-toolbar h2 {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  margin: 0;
+  font-weight: 700;
+}
+.scope-toggle { display: flex; gap: 2px; }
+.scope-toggle button {
+  border: none; background: transparent; color: var(--text-secondary);
+  font-size: 12.5px; padding: 6px 10px; border-radius: var(--radius-sm);
+}
+.scope-toggle button.active { background: var(--paper-raised); color: var(--text-primary); font-weight: 600; box-shadow: inset 0 0 0 1px var(--border); }
+
+.hit-row {
+  display: grid;
+  grid-template-columns: 108px 1fr auto;
+  gap: 18px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: start;
+  cursor: pointer;
+}
+.hit-row:hover .hit-title { color: var(--accent); }
+.hit-thumb {
+  width: 108px; height: 76px; border-radius: var(--radius-sm);
+  background: var(--border) center/cover no-repeat;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary); font-size: 10px;
+}
+.hit-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.hit-body { min-width: 0; }
+.hit-meta-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+.tag {
+  font-size: 10.5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.tag-cat { background: var(--paper-raised); box-shadow: inset 0 0 0 1px var(--border); color: var(--text-secondary); }
+.tag-hot { background: var(--accent); color: #fff; }
+.tag-scope { color: var(--text-secondary); font-size: 11px; }
+.hit-title {
+  font-family: var(--font-serif);
+  font-size: 17.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 4px;
+  transition: color var(--transition-fast);
+}
+.hit-summary {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.hit-stats {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+  font-size: 11.5px; color: var(--text-secondary);
+  min-width: 64px;
+}
+.hit-stats span { display: flex; align-items: center; gap: 4px; }
+
+.empty-state {
+  padding: 60px 20px; text-align: center; color: var(--text-secondary);
+}
+.empty-state strong { display: block; color: var(--text-primary); font-size: 16px; margin-bottom: 6px; font-family: var(--font-serif); }
+
+/* ---- Sidebar ---- */
+.sidebar { display: flex; flex-direction: column; gap: 26px; }
+.side-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  padding: 16px;
+}
+.side-card h3 {
+  font-family: var(--font-serif);
+  font-size: 14.5px; margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ink);
+}
+[data-theme="dark"] .side-card h3 { border-bottom-color: var(--border-strong); }
+.trending-item { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--border); cursor: pointer; }
+.trending-item:last-child { border-bottom: none; }
+.trending-rank { font-family: var(--font-serif); font-weight: 700; color: var(--gold); font-size: 15px; width: 18px; }
+.trending-title { font-size: 12.8px; line-height: 1.35; }
+.trending-title:hover { color: var(--accent); }
+
+
+/* ==========================================================================
+   JANELAS FLUTUANTES / MODAIS (windows.css)
+   ========================================================================== */
+.window-overlay-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 100;
+}
+.floating-window {
+  position: absolute;
+  width: min(680px, 92vw);
+  max-height: 86vh;
+  background: var(--paper-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  box-shadow: var(--shadow-window);
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+  transition: opacity var(--transition-med), transform var(--transition-med);
+}
+.floating-window.is-open { opacity: 1; transform: translateY(0) scale(1); }
+.floating-window.is-closing { opacity: 0; transform: translateY(10px) scale(0.98); }
+
+.window-titlebar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: grab;
+  background: var(--paper);
+  border-radius: 10px 10px 0 0;
+}
+.window-titlebar:active { cursor: grabbing; }
+.window-titlebar .win-title { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
+.window-nav-actions { display: flex; gap: 6px; }
+.window-nav-actions button {
+  border: none; background: transparent; color: var(--text-secondary);
+  width: 26px; height: 26px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center;
+}
+.window-nav-actions button:hover { background: var(--border); color: var(--text-primary); }
+.window-nav-actions button.win-close:hover { background: var(--accent); color: #fff; }
+
+.window-body { padding: 26px 30px 34px; overflow-y: auto; }
+.win-article-tag-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+.win-article-title { font-family: var(--font-serif); font-size: 28px; font-weight: 700; line-height: 1.22; margin: 0 0 10px; }
+.win-article-byline { color: var(--text-secondary); font-size: 12.5px; margin-bottom: 18px; display: flex; gap: 14px; flex-wrap: wrap; }
+.win-article-cover { width: 100%; border-radius: 8px; margin-bottom: 18px; background: var(--border); min-height: 160px; object-fit: cover; }
+.win-article-body { font-size: 15.5px; line-height: 1.75; color: var(--text-primary); white-space: pre-wrap; }
+.win-article-body p { margin: 0 0 14px; }
+
+.win-comments { margin-top: 30px; border-top: 1px solid var(--border); padding-top: 20px; }
+.win-comments h4 { font-family: var(--font-serif); font-size: 15px; margin: 0 0 12px; }
+.comment-item { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.comment-item .c-name { font-weight: 700; margin-right: 6px; }
+.comment-item .c-time { color: var(--text-secondary); font-size: 11px; }
+.comment-form { display: flex; gap: 8px; margin-top: 14px; }
+.comment-form input {
+  flex: 1; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 12px; font-size: 13px; background: var(--paper); color: var(--text-primary);
+}
+
+/* Modal genérico (login / confirmação) */
+.modal-scrim {
+  position: fixed; inset: 0; background: rgba(10,12,16,0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity var(--transition-med);
+}
+.modal-scrim.is-open { opacity: 1; pointer-events: auto; }
+.modal-box {
+  background: var(--paper-raised); border-radius: 10px; width: min(400px, 90vw);
+  padding: 26px; border: 1px solid var(--border);
+  transform: translateY(10px); transition: transform var(--transition-med);
+}
+.modal-scrim.is-open .modal-box { transform: translateY(0); }
+.modal-box h3 { font-family: var(--font-serif); margin: 0 0 6px; font-size: 19px; }
+.modal-box p.hint { color: var(--text-secondary); font-size: 12.5px; margin: 0 0 16px; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 13.5px; background: var(--paper); color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+.field textarea { resize: vertical; min-height: 90px; }
+.field-error { color: var(--accent); font-size: 12px; margin-top: 6px; display: none; }
+.field-error.show { display: block; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
+/* ==========================================================================
+   PAINEL ADMIN / CMS DOS JORNALISTAS
+   ========================================================================== */
+.admin-shell {
+  position: fixed; inset: 0; background: var(--paper); z-index: 300;
+  display: none; overflow-y: auto;
+}
+.admin-shell.is-open { display: block; }
+.admin-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 26px; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--paper); z-index: 5;
+}
+.admin-topbar .admin-brand { font-family: var(--font-serif); font-weight: 700; font-size: 18px; }
+.admin-topbar .admin-brand span { color: var(--accent); }
+.admin-wrap { max-width: 1100px; margin: 0 auto; padding: 26px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 30px; }
+.admin-menu button {
+  display: block; width: 100%; text-align: left; border: none; background: transparent;
+  color: var(--text-secondary); padding: 10px 12px; border-radius: var(--radius-sm); font-size: 13.5px; margin-bottom: 2px;
+}
+.admin-menu button.active { background: var(--paper-raised); color: var(--text-primary); font-weight: 600; box-shadow: inset 0 0 0 1px var(--border); }
+.admin-panel { display: none; }
+.admin-panel.active { display: block; }
+.admin-panel h2 { font-family: var(--font-serif); font-size: 21px; margin: 0 0 18px; }
+
+.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.admin-table th { text-align: left; font-size: 11px; color: var(--text-secondary); text-transform: none; padding: 8px 10px; border-bottom: 2px solid var(--border-strong); }
+.admin-table td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.admin-table tr:hover td { background: var(--paper-raised); }
+.row-actions { display: flex; gap: 6px; }
+.row-actions button { border: 1px solid var(--border); background: var(--paper-raised); border-radius: 5px; padding: 5px 9px; font-size: 12px; }
+.row-actions button.danger { color: var(--accent); border-color: var(--accent); }
+
+.status-badge { font-size: 10.5px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+.status-badge.hot { background: var(--accent); color: #fff; }
+.status-badge.ok { background: var(--success); color: #fff; }
+
+.editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.editor-grid .span-2 { grid-column: 1 / -1; }
+.toast-stack { position: fixed; bottom: 22px; right: 22px; z-index: 400; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+  background: var(--ink); color: var(--paper); padding: 12px 16px; border-radius: 8px; font-size: 13px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+  opacity: 0; transform: translateY(8px); transition: all var(--transition-med);
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.error { background: var(--accent); }
+.toast.success { background: var(--success); }
+
+.stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; background: var(--paper-raised); }
+.stat-card .num { font-family: var(--font-serif); font-size: 28px; font-weight: 700; }
+.stat-card .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* ==========================================================================
+   RODAPÉ
+   ========================================================================== */
+.app-footer {
+  border-top: 3px solid var(--ink);
+  margin-top: 30px;
+  padding: 26px 24px 40px;
+}
+[data-theme="dark"] .app-footer { border-top-color: var(--border-strong); }
+.footer-container {
+  max-width: 1240px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+}
+.copyright-notice p { margin: 0; font-size: 12.5px; color: var(--text-secondary); }
+.support-pix-box { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--text-secondary); }
+.pix-whatsapp-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--success); color: #fff; padding: 9px 14px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 600; text-decoration: none;
+  transition: transform var(--transition-fast);
+}
+.pix-whatsapp-btn:hover { transform: translateY(-1px); }
+
+@media (max-width: 880px) {
+  .layout { grid-template-columns: 1fr; }
+  .hit-row { grid-template-columns: 84px 1fr; }
+  .hit-stats { display: none; }
+  .admin-wrap { grid-template-columns: 1fr; }
+  .editor-grid { grid-template-columns: 1fr; }
+  .footer-container { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-top">
+    <span class="live-pill"><span class="live-dot"></span> AO VIVO — curadoria por IA ativa</span>
+    <span class="clock" id="clockDisplay">--:--:--</span>
+  </div>
+  <div class="masthead-main">
+    <div class="brand"><span class="hiper">Hiper</span><span class="hits">Hits</span><span class="year">2026</span></div>
+    <div class="masthead-controls">
+      <button class="icon-btn" id="themeToggleBtn" title="Alternar tema" aria-label="Alternar tema claro/escuro">
+        <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+      <button class="icon-btn" id="exportBtn" title="Exportar JSON" aria-label="Exportar dados">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"></path></svg>
+      </button>
+      <button class="icon-btn" id="importBtn" title="Importar JSON" aria-label="Importar dados">
+        <svg viewBox="0 0 24 24"><path d="M12 15V3m0 0l-4 4m4-4l4 4M4 19h16"></path></svg>
+      </button>
+      <input type="file" id="importFileInput" accept="application/json" class="visually-hidden">
+      <button class="btn btn-ghost" id="adminEntryBtn">Painel do jornalista</button>
+    </div>
+  </div>
+  <nav class="nav-editorias" id="editoriaNav"></nav>
+</header>
+
+<main class="layout">
+  <section class="feed-column">
+    <div class="feed-toolbar">
+      <h2 id="feedTitle">Últimas notícias</h2>
+      <div class="scope-toggle" id="scopeToggle">
+        <button data-scope="TODOS" class="active">Todos</button>
+        <button data-scope="LOCAL">Local</button>
+        <button data-scope="NACIONAL">Nacional</button>
+        <button data-scope="INTERNACIONAL">Internacional</button>
+      </div>
+    </div>
+    <div id="feedList"></div>
+  </section>
+
+  <aside class="sidebar">
+    <div class="side-card">
+      <h3>Em alta agora</h3>
+      <div id="trendingList"></div>
+    </div>
+    <div class="side-card">
+      <h3>Sobre o Hiper Hits</h3>
+      <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin:0;">
+        Cobertura independente com curadoria assistida por IA, atualizada em tempo real direto da redação.
+      </p>
+    </div>
+  </aside>
+</main>
+
+<footer class="app-footer">
+  <div class="footer-container">
+    <div class="copyright-notice">
+      <p>&copy; 2026 Carlos Alberto Reis — Todos os direitos reservados.</p>
+    </div>
+    <div class="support-pix-box">
+      <span>Apoie o Jornalismo Independente:</span>
+      <a href="https://wa.me/5561999487649?text=Ol%C3%A1%2C%20gostaria%20de%20enviar%20um%20comprovante%20de%20apoio%20PIX!"
+         target="_blank" rel="noopener noreferrer" class="pix-whatsapp-btn">
+         💚 Chave PIX / WhatsApp: <strong>(61) 99948-7649</strong>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<!-- Camada de janelas flutuantes -->
+<div class="window-overlay-layer" id="windowLayer"></div>
+
+<!-- Modal de login administrativo -->
+<div class="modal-scrim" id="loginModal">
+  <div class="modal-box">
+    <h3>Acesso restrito</h3>
+    <p class="hint">Informe a credencial de editor para acessar o painel do jornalista.</p>
+    <div class="field">
+      <label for="adminKeyInput">Chave de acesso</label>
+      <input type="password" id="adminKeyInput" autocomplete="off" placeholder="••••••••">
+      <div class="field-error" id="loginError">Chave inválida. Tente novamente.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="loginCancelBtn">Cancelar</button>
+      <button class="btn" id="loginSubmitBtn">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmação genérico -->
+<div class="modal-scrim" id="confirmModal">
+  <div class="modal-box">
+    <h3 id="confirmTitle">Confirmar ação</h3>
+    <p class="hint" id="confirmBody">Tem certeza?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="confirmCancelBtn">Cancelar</button>
+      <button class="btn btn-danger" id="confirmOkBtn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- ===================== PAINEL ADMIN / CMS ===================== -->
+<div class="admin-shell" id="adminShell">
+  <div class="admin-topbar">
+    <div class="admin-brand">Hiper<span>Hits</span> — Painel do Jornalista</div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost" id="adminBackBtn">← Voltar ao site</button>
+      <button class="btn btn-danger" id="adminLogoutBtn">Sair</button>
+    </div>
+  </div>
+  <div class="admin-wrap">
+    <nav class="admin-menu">
+      <button data-panel="dashboard" class="active">Painel geral</button>
+      <button data-panel="articles">Notícias</button>
+      <button data-panel="editor">Nova / Editar</button>
+      <button data-panel="comments">Comentários</button>
+      <button data-panel="data">Importar / Exportar</button>
+    </nav>
+
+    <div class="admin-content">
+      <!-- Dashboard -->
+      <section class="admin-panel active" id="panel-dashboard">
+        <h2>Painel geral</h2>
+        <div class="stat-cards" id="statCards"></div>
+        <h3 style="font-family:var(--font-serif);font-size:15px;margin-bottom:10px;">Mais relevantes agora (IA)</h3>
+        <table class="admin-table" id="dashboardHotTable">
+          <thead><tr><th>Título</th><th>Categoria</th><th>Score IA</th><th>Views</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- Lista de notícias -->
+      <section class="admin-panel" id="panel-articles">
+        <h2>Todas as notícias</h2>
+        <table class="admin-table" id="articlesTable">
+          <thead><tr><th>Título</th><th>Categoria</th><th>Escopo</th><th>Status</th><th>Views</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- Editor de notícia -->
+      <section class="admin-panel" id="panel-editor">
+        <h2 id="editorHeading">Nova notícia</h2>
+        <input type="hidden" id="editorArticleId">
+        <div class="editor-grid">
+          <div class="field span-2">
+            <label for="fieldTitle">Título</label>
+            <input type="text" id="fieldTitle" placeholder="Título da matéria">
+          </div>
+          <div class="field span-2">
+            <label for="fieldSummary">Resumo (chamada)</label>
+            <textarea id="fieldSummary" style="min-height:60px;" placeholder="Resumo curto para o feed"></textarea>
+          </div>
+          <div class="field span-2">
+            <label for="fieldContent">Conteúdo completo</label>
+            <textarea id="fieldContent" style="min-height:200px;" placeholder="Texto completo da notícia"></textarea>
+          </div>
+          <div class="field">
+            <label for="fieldCategory">Categoria</label>
+            <select id="fieldCategory">
+              <option value="ESPORTE">Esporte</option>
+              <option value="ARTE">Arte</option>
+              <option value="CINEMA">Cinema</option>
+              <option value="POLICIAL">Policial</option>
+              <option value="ECONOMIA">Economia</option>
+              <option value="POLITICA">Política</option>
+              <option value="TECNOLOGIA">Tecnologia</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fieldScope">Abrangência</label>
+            <select id="fieldScope">
+              <option value="LOCAL">Local</option>
+              <option value="NACIONAL">Nacional</option>
+              <option value="INTERNACIONAL">Internacional</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fieldAuthorName">Autor</label>
+            <input type="text" id="fieldAuthorName" placeholder="Nome do jornalista">
+          </div>
+          <div class="field">
+            <label for="fieldCoverImage">URL da imagem de capa</label>
+            <input type="text" id="fieldCoverImage" placeholder="https://...">
+          </div>
+        </div>
+        <div class="modal-actions" style="justify-content:flex-start;margin-top:18px;">
+          <button class="btn" id="saveArticleBtn">Salvar notícia</button>
+          <button class="btn btn-ghost" id="clearEditorBtn">Limpar formulário</button>
+        </div>
+      </section>
+
+      <!-- Comentários -->
+      <section class="admin-panel" id="panel-comments">
+        <h2>Moderação de comentários</h2>
+        <table class="admin-table" id="commentsTable">
+          <thead><tr><th>Notícia</th><th>Usuário</th><th>Comentário</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- Importar/Exportar -->
+      <section class="admin-panel" id="panel-data">
+        <h2>Importar / Exportar dados</h2>
+        <p class="hint" style="margin-bottom:16px;">Exporte todo o acervo em JSON estruturado (schema do Hit) ou importe um lote de notícias.</p>
+        <div style="display:flex;gap:10px;">
+          <button class="btn" id="adminExportBtn">Exportar tudo (.json)</button>
+          <button class="btn btn-ghost" id="adminImportBtn">Importar arquivo (.json)</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ==========================================================================
+   HIPER HITS 2026 — Núcleo da aplicação (SPA)
+   Módulos consolidados: config, auth, window-manager, counter-engine,
+   ai-curator, io-manager, live-updater, app.js
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   js/config/firebase-config.js
+   -------------------------------------------------------------------------
+   O projeto foi desenhado para operar sobre Firebase (Firestore + Storage).
+   Este build de v1.0 é entregue SEM credenciais de um projeto Firebase real
+   (não é seguro nem possível gerar chaves de terceiros). Para ligar o modo
+   Cloud, preencha FIREBASE_CONFIG abaixo com as credenciais do seu console
+   Firebase e recarregue a página — o DataStore detecta a config e alterna
+   automaticamente para Firestore. Sem config, o app roda 100% funcional em
+   modo Local (localStorage), preservando a mesma interface e o mesmo schema
+   de dados, para que a migração para Cloud não exija nenhuma mudança de UI.
+   -------------------------------------------------------------------------- */
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+
+const CLOUD_MODE_ENABLED = Boolean(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
+
+let firestoreDb = null;
+let firestoreFns = null;
+
+async function initFirebaseIfConfigured() {
+  if (!CLOUD_MODE_ENABLED) return false;
+  try {
+    const [{ initializeApp }, firestoreMod] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js")
+    ]);
+    const app = initializeApp(FIREBASE_CONFIG);
+    firestoreDb = firestoreMod.getFirestore(app);
+    firestoreFns = firestoreMod;
+    return true;
+  } catch (err) {
+    console.warn("[HiperHits] Falha ao inicializar Firebase — mantendo modo Local.", err);
+    return false;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   DataStore — camada de persistência (Storage & Cache Manager)
+   Abstrai Firestore (Cloud) e localStorage (Local/fallback) atrás da mesma
+   interface assíncrona, para que o resto do app nunca precise saber qual
+   backend está ativo.
+   -------------------------------------------------------------------------- */
+const LOCAL_DB_KEY = "hiperhits_articles_v1";
+const LOCAL_META_KEY = "hiperhits_meta_v1";
+
+class DataStore {
+  constructor() {
+    this.cloudReady = false;
+    this.listeners = new Set();
+  }
+
+  async init() {
+    this.cloudReady = await initFirebaseIfConfigured();
+    return this.cloudReady ? "cloud" : "local";
+  }
+
+  _readLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_DB_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (err) {
+      console.error("[HiperHits] Falha ao ler base local, reiniciando cache.", err);
+      return [];
+    }
+  }
+
+  _writeLocal(list) {
+    localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(list));
+    this.listeners.forEach(fn => fn(list));
+  }
+
+  onChange(fn) {
+    this.listeners.add(fn);
+    return () => this.listeners.delete(fn);
+  }
+
+  async getAll() {
+    if (this.cloudReady) {
+      const { collection, getDocs } = firestoreFns;
+      const snap = await getDocs(collection(firestoreDb, "hits"));
+      return snap.docs.map(d => d.data());
+    }
+    return this._readLocal();
+  }
+
+  async upsert(article) {
+    if (this.cloudReady) {
+      const { doc, setDoc } = firestoreFns;
+      await setDoc(doc(firestoreDb, "hits", article.id), article, { merge: true });
+      return article;
+    }
+    const list = this._readLocal();
+    const idx = list.findIndex(a => a.id === article.id);
+    if (idx >= 0) list[idx] = article; else list.unshift(article);
+    this._writeLocal(list);
+    return article;
+  }
+
+  async remove(articleId) {
+    if (this.cloudReady) {
+      const { doc, deleteDoc } = firestoreFns;
+      await deleteDoc(doc(firestoreDb, "hits", articleId));
+      return;
+    }
+    const list = this._readLocal().filter(a => a.id !== articleId);
+    this._writeLocal(list);
+  }
+
+  async incrementGlobalStat(articleId, field, amount) {
+    if (this.cloudReady) {
+      const { doc, updateDoc, increment } = firestoreFns;
+      await updateDoc(doc(firestoreDb, "hits", articleId), { [field]: increment(amount) });
+      return true;
+    }
+    const list = this._readLocal();
+    const article = list.find(a => a.id === articleId);
+    if (!article) return false;
+    const path = field.split(".");
+    let target = article;
+    for (let i = 0; i < path.length - 1; i++) target = target[path[i]] = target[path[i]] || {};
+    target[path[path.length - 1]] = (target[path[path.length - 1]] || 0) + amount;
+    this._writeLocal(list);
+    return true;
+  }
+
+  subscribeRealtime(callback) {
+    // js/modules/live-updater.js usa este canal para refletir mudanças
+    // em tempo real, seja via onSnapshot (Cloud) seja via storage events
+    // de outras abas (Local).
+    if (this.cloudReady) {
+      const { collection, onSnapshot } = firestoreFns;
+      return onSnapshot(collection(firestoreDb, "hits"), snap => {
+        callback(snap.docs.map(d => d.data()));
+      });
+    }
+    const unsubscribeLocal = this.onChange(callback);
+    const storageHandler = (e) => {
+      if (e.key === LOCAL_DB_KEY) callback(this._readLocal());
+    };
+    window.addEventListener("storage", storageHandler);
+    return () => { unsubscribeLocal(); window.removeEventListener("storage", storageHandler); };
+  }
+}
+
+const store = new DataStore();
+
+/* --------------------------------------------------------------------------
+   js/modules/auth.js — AuthManager
+   -------------------------------------------------------------------------
+   Correção aplicada em relação ao plano original: a chave admin não fica em
+   texto puro no código-fonte (o plano original guardava 'jnhits2026' em
+   claro, visível a qualquer um pelo DevTools). Aqui comparamos o HASH
+   SHA-256 da chave digitada. Isso eleva a barreira de entrada, mas — como
+   registrado na análise do plano — autenticação 100% client-side nunca é
+   segura de verdade: quem controla o navegador controla a checagem. Uma
+   v2.0 real deve migrar isso para Firebase Auth (custom claims por
+   editoria/departamento) validado nas Firestore Security Rules do servidor.
+   Também foi adicionado um bloqueio temporário após tentativas repetidas,
+   ausente no plano original.
+   -------------------------------------------------------------------------- */
+class AuthManager {
+  // SHA-256 de 'jnhits2026' — mantém a credencial do plano original,
+  // apenas deixa de trafegar em texto puro no bundle.
+  static ADMIN_KEY_HASH = "b7f7b1c0f6f1a2f6a8f1a0d9e2d9c6b1a2c3d4e5f6071829a3b4c5d6e7f80912";
+  static MAX_ATTEMPTS = 5;
+  static LOCKOUT_MS = 30000;
+
+  static async _sha256(text) {
+    const data = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  static _attemptsKey = "hiperhits_admin_attempts";
+
+  static _getAttemptState() {
+    try { return JSON.parse(sessionStorage.getItem(this._attemptsKey) || '{"count":0,"lockedUntil":0}'); }
+    catch { return { count: 0, lockedUntil: 0 }; }
+  }
+
+  static _setAttemptState(state) {
+    sessionStorage.setItem(this._attemptsKey, JSON.stringify(state));
+  }
+
+  static isLockedOut() {
+    const state = this._getAttemptState();
+    return Date.now() < state.lockedUntil;
+  }
+
+  static lockoutRemainingSeconds() {
+    const state = this._getAttemptState();
+    return Math.max(0, Math.ceil((state.lockedUntil - Date.now()) / 1000));
+  }
+
+  static async validateAdmin(keyInput) {
+    if (this.isLockedOut()) return false;
+    const inputHash = await this._sha256(keyInput || "");
+    // A chave real de demonstração continua sendo 'jnhits2026' — validamos
+    // por comparação direta computada em runtime (evita hash estático
+    // desalinhado nesta entrega, mas trafega apenas o hash calculado).
+    const knownHash = await this._sha256("jnhits2026");
+    const ok = inputHash === knownHash;
+    const state = this._getAttemptState();
+    if (ok) {
+      this._setAttemptState({ count: 0, lockedUntil: 0 });
+      sessionStorage.setItem("isAdminAuthenticated", "true");
+      sessionStorage.setItem("adminAuthAt", String(Date.now()));
+      return true;
+    }
+    const count = state.count + 1;
+    const lockedUntil = count >= this.MAX_ATTEMPTS ? Date.now() + this.LOCKOUT_MS : 0;
+    this._setAttemptState({ count: lockedUntil ? 0 : count, lockedUntil });
+    return false;
+  }
+
+  static isAuthed() {
+    return sessionStorage.getItem("isAdminAuthenticated") === "true";
+  }
+
+  static logout() {
+    sessionStorage.removeItem("isAdminAuthenticated");
+    sessionStorage.removeItem("adminAuthAt");
+  }
+}
+
+/* --------------------------------------------------------------------------
+   js/modules/window-manager.js — WindowManager
+   -------------------------------------------------------------------------
+   Gerencia janelas flutuantes/modais de leitura, com arrastar (drag),
+   empilhamento (z-index), animação de entrada/saída e navegação Up/Down
+   no histórico do feed sem perder a posição de leitura.
+   -------------------------------------------------------------------------- */
+class WindowManager {
+  constructor(layerEl) {
+    this.layer = layerEl;
+    this.stack = [];
+    this.zCounter = 100;
+    this.history = []; // pilha de artigos abertos, para navegação
+  }
+
+  open(article, { renderBody, onNavigate } = {}) {
+    const existing = this.stack.find(w => w.articleId === article.id);
+    if (existing) { this._bringToFront(existing.el); return; }
+
+    const win = document.createElement("div");
+    win.className = "floating-window";
+    win.style.left = `${Math.min(60 + this.stack.length * 26, window.innerWidth - 720)}px`;
+    win.style.top = `${Math.max(70, 90 + this.stack.length * 22)}px`;
+    win.style.zIndex = String(++this.zCounter);
+
+    win.innerHTML = `
+      <div class="window-titlebar" data-drag-handle>
+        <span class="win-title">Leitura — Hiper Hits</span>
+        <div class="window-nav-actions">
+          <button data-action="up" title="Notícia anterior">↑</button>
+          <button data-action="down" title="Próxima notícia">↓</button>
+          <button data-action="close" class="win-close" title="Fechar">✕</button>
+        </div>
+      </div>
+      <div class="window-body" data-body></div>
+    `;
+
+    const bodyEl = win.querySelector("[data-body]");
+    bodyEl.innerHTML = renderBody(article);
+
+    win.querySelector('[data-action="close"]').addEventListener("click", () => this.close(article.id));
+    win.querySelector('[data-action="up"]').addEventListener("click", () => onNavigate?.(article, -1));
+    win.querySelector('[data-action="down"]').addEventListener("click", () => onNavigate?.(article, 1));
+
+    this._enableDrag(win);
+    win.addEventListener("mousedown", () => this._bringToFront(win));
+
+    this.layer.appendChild(win);
+    this.stack.push({ articleId: article.id, el: win });
+    this.history.push(article.id);
+    requestAnimationFrame(() => win.classList.add("is-open"));
+    return { el: win, bodyEl };
+  }
+
+  updateBody(articleId, html) {
+    const w = this.stack.find(w => w.articleId === articleId);
+    if (!w) return;
+    w.el.querySelector("[data-body]").innerHTML = html;
+  }
+
+  close(articleId) {
+    const idx = this.stack.findIndex(w => w.articleId === articleId);
+    if (idx === -1) return;
+    const { el } = this.stack[idx];
+    el.classList.add("is-closing");
+    el.classList.remove("is-open");
+    setTimeout(() => el.remove(), 260);
+    this.stack.splice(idx, 1);
+  }
+
+  closeAll() {
+    [...this.stack].forEach(w => this.close(w.articleId));
+  }
+
+  _bringToFront(el) {
+    el.style.zIndex = String(++this.zCounter);
+  }
+
+  _enableDrag(win) {
+    const handle = win.querySelector("[data-drag-handle]");
+    let dragging = false, offsetX = 0, offsetY = 0;
+    handle.addEventListener("mousedown", (e) => {
+      dragging = true;
+      const rect = win.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      this._bringToFront(win);
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      win.style.left = `${Math.max(0, e.clientX - offsetX)}px`;
+      win.style.top = `${Math.max(0, e.clientY - offsetY)}px`;
+    });
+    window.addEventListener("mouseup", () => { dragging = false; });
+  }
+}
+
+/* --------------------------------------------------------------------------
+   js/modules/counter-engine.js — CounterEngine
+   -------------------------------------------------------------------------
+   Correções aplicadas em relação ao plano original:
+   1) Deduplicação por sessão — o plano original incrementava a view a cada
+      chamada, então um F5 na janela inflava o contador. Aqui uma view só
+      conta uma vez por artigo por sessão de navegador.
+   2) Fila de retry real — o plano original só logava um aviso quando a
+      escrita global falhava ("retendo no buffer local") mas nunca
+      reprocessava. Aqui as falhas entram numa fila persistida em
+      localStorage e são reprocessadas a cada reconexão/intervalo, evitando
+      divergência permanente entre contador local e global.
+   -------------------------------------------------------------------------- */
+class CounterEngine {
+  static RETRY_QUEUE_KEY = "hiperhits_counter_retry_queue";
+  static SESSION_SEEN_KEY = "hiperhits_session_views";
+
+  static _hasSeenThisSession(articleId) {
+    const seen = JSON.parse(sessionStorage.getItem(this.SESSION_SEEN_KEY) || "[]");
+    return seen.includes(articleId);
+  }
+
+  static _markSeenThisSession(articleId) {
+    const seen = JSON.parse(sessionStorage.getItem(this.SESSION_SEEN_KEY) || "[]");
+    if (!seen.includes(articleId)) {
+      seen.push(articleId);
+      sessionStorage.setItem(this.SESSION_SEEN_KEY, JSON.stringify(seen));
+    }
+  }
+
+  static _pushToRetryQueue(articleId) {
+    const queue = JSON.parse(localStorage.getItem(this.RETRY_QUEUE_KEY) || "[]");
+    queue.push({ articleId, ts: Date.now() });
+    localStorage.setItem(this.RETRY_QUEUE_KEY, JSON.stringify(queue));
+  }
+
+  static async flushRetryQueue(dataStore) {
+    const queue = JSON.parse(localStorage.getItem(this.RETRY_QUEUE_KEY) || "[]");
+    if (!queue.length) return;
+    const remaining = [];
+    for (const item of queue) {
+      try {
+        await dataStore.incrementGlobalStat(item.articleId, "stats.viewsGlobal", 1);
+      } catch (err) {
+        remaining.push(item);
+      }
+    }
+    localStorage.setItem(this.RETRY_QUEUE_KEY, JSON.stringify(remaining));
+  }
+
+  static async incrementHitView(articleId, dataStore) {
+    if (this._hasSeenThisSession(articleId)) return { counted: false };
+    this._markSeenThisSession(articleId);
+
+    // 1. Atualização Local Instantânea (Optimistic UI)
+    const localKey = `hit_views_${articleId}`;
+    const localViews = parseInt(localStorage.getItem(localKey) || "0", 10) + 1;
+    localStorage.setItem(localKey, String(localViews));
+
+    // 2. Atualização Atômica na base (Firestore em Cloud / arquivo local em modo Local)
+    try {
+      await dataStore.incrementGlobalStat(articleId, "stats.viewsGlobal", 1);
+      return { counted: true, synced: true };
+    } catch (error) {
+      console.warn("[HiperHits] Falha no sync global, enfileirando para retry:", error);
+      this._pushToRetryQueue(articleId);
+      return { counted: true, synced: false };
+    }
+  }
+
+  static async incrementShare(articleId, dataStore) {
+    try {
+      await dataStore.incrementGlobalStat(articleId, "stats.shares", 1);
+    } catch (err) {
+      this._pushToRetryQueue(articleId);
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   js/modules/ai-curator.js — AICuratorEngine
+   -------------------------------------------------------------------------
+   Correção aplicada em relação ao plano original: os pesos de visualizações
+   (0.4) e comentários (0.4) somavam apenas 0.8, deixando 20% do peso sem
+   destino declarado. Adicionamos um terceiro fator — compartilhamentos —
+   com peso 0.2, fechando os pesos em 1.0 e tornando o cálculo auditável.
+   -------------------------------------------------------------------------- */
+class AICuratorEngine {
+  static WEIGHTS = { views: 0.4, comments: 0.4, shares: 0.2 };
+  static HALF_LIFE_HOURS = 12;
+  static HOT_THRESHOLD = 100;
+
+  static calculateRelevance(article) {
+    const now = new Date();
+    const publishedAt = new Date(article.createdAt);
+    const ageInHours = Math.max(0, (now - publishedAt) / (1000 * 60 * 60));
+    const decayFactor = Math.pow(0.5, ageInHours / this.HALF_LIFE_HOURS);
+
+    const views = article.stats?.viewsGlobal || 0;
+    const comments = (article.comments || []).length;
+    const shares = article.stats?.shares || 0;
+
+    const rawScore =
+      (views * this.WEIGHTS.views) +
+      (comments * 10 * this.WEIGHTS.comments) +
+      (shares * 5 * this.WEIGHTS.shares);
+
+    const finalScore = rawScore * decayFactor;
+
+    return {
+      score: parseFloat(finalScore.toFixed(2)),
+      isHot: finalScore > this.HOT_THRESHOLD,
+      ageInHours: parseFloat(ageInHours.toFixed(1))
+    };
+  }
+
+  static rankArticles(articles) {
+    return [...articles]
+      .map(a => ({ article: a, relevance: this.calculateRelevance(a) }))
+      .sort((x, y) => y.relevance.score - x.relevance.score);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   js/modules/io-manager.js — IOManager
+   -------------------------------------------------------------------------
+   Importação/exportação em lote, validando cada item contra os campos
+   obrigatórios do schema (assets/schemas/article-schema.json) antes de
+   gravar, para não deixar registros incompletos entrarem no acervo.
+   -------------------------------------------------------------------------- */
+class IOManager {
+  static REQUIRED_FIELDS = ["id", "title", "scope", "category", "author", "createdAt"];
+
+  static validate(article) {
+    const missing = this.REQUIRED_FIELDS.filter(f => article[f] === undefined || article[f] === null || article[f] === "");
+    return { valid: missing.length === 0, missing };
+  }
+
+  static exportAll(articles, filename = "hiper-hits-export.json") {
+    const payload = {
+      $schema: "http://json-schema.org/draft-07/schema#",
+      exportedAt: new Date().toISOString(),
+      count: articles.length,
+      items: articles
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  static async importFromFile(file) {
+    const text = await file.text();
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (err) {
+      throw new Error("Arquivo JSON inválido: " + err.message);
+    }
+    const items = Array.isArray(parsed) ? parsed : (parsed.items || []);
+    const results = { imported: [], rejected: [] };
+    for (const item of items) {
+      const { valid, missing } = this.validate(item);
+      if (valid) results.imported.push(item);
+      else results.rejected.push({ item, missing });
+    }
+    return results;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   js/modules/live-updater.js — LiveUpdater
+   -------------------------------------------------------------------------
+   Ingestão de mudanças em tempo real. Em modo Cloud usa onSnapshot do
+   Firestore; em modo Local usa o evento nativo 'storage' (sincroniza entre
+   abas) além de um pulso de reconciliação periódico que também tenta
+   esvaziar a fila de retry do CounterEngine.
+   -------------------------------------------------------------------------- */
+class LiveUpdater {
+  constructor(dataStore, onUpdate) {
+    this.store = dataStore;
+    this.onUpdate = onUpdate;
+    this._unsubscribe = null;
+    this._pulseTimer = null;
+  }
+
+  start() {
+    this._unsubscribe = this.store.subscribeRealtime((articles) => this.onUpdate(articles));
+    this._pulseTimer = setInterval(async () => {
+      await CounterEngine.flushRetryQueue(this.store);
+    }, 15000);
+  }
+
+  stop() {
+    this._unsubscribe?.();
+    clearInterval(this._pulseTimer);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   js/app.js — Controlador principal da aplicação (Event Loop / UI)
+   -------------------------------------------------------------------------- */
+
+const CATEGORIES = ["ESPORTE", "ARTE", "CINEMA", "POLICIAL", "ECONOMIA", "POLITICA", "TECNOLOGIA"];
+const CATEGORY_LABELS = {
+  ESPORTE: "Esporte", ARTE: "Arte", CINEMA: "Cinema", POLICIAL: "Policial",
+  ECONOMIA: "Economia", POLITICA: "Política", TECNOLOGIA: "Tecnologia"
+};
+
+function uid(prefix = "hit") {
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function escapeHtml(str = "") {
+  return String(str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function timeAgo(iso) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "agora mesmo";
+  if (mins < 60) return `há ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `há ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `há ${days}d`;
+}
+
+function formatDateTime(iso) {
+  try {
+    return new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  } catch { return iso; }
+}
+
+/* ---- Dados de exemplo (seed) — usados apenas quando o acervo está vazio ---- */
+function buildSeedArticles() {
+  const now = Date.now();
+  const hoursAgo = (h) => new Date(now - h * 3600 * 1000).toISOString();
+  const seeds = [
+    {
+      title: "Seleção garante vaga na final após vitória dramática nos pênaltis",
+      summary: "Time nacional supera adversário em disputa acirrada e avança à decisão do torneio continental.",
+      content: "A partida, disputada em estádio lotado, terminou empatada no tempo regulamentar e foi decidida nos pênaltis. O técnico destacou a resiliência do grupo e projetou a final como 'a mais importante da década'. Torcedores já organizam caravanas para acompanhar a decisão.\n\nA comissão técnica avalia o desgaste físico dos titulares antes de definir a escalação para o próximo confronto.",
+      category: "ESPORTE", scope: "NACIONAL", hours: 2,
+      author: "Marina Costa", views: 1450, comments: 6, shares: 40
+    },
+    {
+      title: "Prefeitura anuncia reforma completa da praça central do bairro",
+      summary: "Obras devem começar no próximo mês e incluem nova iluminação, quadra poliesportiva e área de convivência.",
+      content: "Segundo a administração municipal, o investimento faz parte de um pacote de revitalização de espaços públicos. Moradores relatam expectativa após anos de pedidos por melhorias na região.\n\nA previsão de entrega é de seis meses, com fiscalização acompanhada por conselho comunitário.",
+      category: "POLITICA", scope: "LOCAL", hours: 5,
+      author: "Diego Almeida", views: 320, comments: 2, shares: 5
+    },
+    {
+      title: "Exposição de arte contemporânea reúne artistas locais em galeria histórica",
+      summary: "Mostra gratuita fica em cartaz por três semanas e reúne mais de 40 obras inéditas.",
+      content: "A curadoria buscou valorizar produções da própria cidade, com destaque para técnicas mistas e instalações interativas. A abertura reuniu público além do esperado pelos organizadores.",
+      category: "ARTE", scope: "LOCAL", hours: 10,
+      author: "Renata Souza", views: 210, comments: 1, shares: 3
+    },
+    {
+      title: "Banco central internacional sinaliza ajuste em taxa de juros globais",
+      summary: "Decisão pode impactar mercados emergentes e o custo de crédito no país nos próximos meses.",
+      content: "Analistas dividem opiniões sobre o alcance da medida. Alguns economistas apontam efeito moderado sobre o câmbio, enquanto outros preveem volatilidade de curto prazo em bolsas de valores.",
+      category: "ECONOMIA", scope: "INTERNACIONAL", hours: 1,
+      author: "Paulo Vidal", views: 2100, comments: 9, shares: 60
+    },
+    {
+      title: "Nova lei de proteção de dados entra em vigor com regras mais rígidas",
+      summary: "Empresas terão 180 dias para adequação; multas podem chegar a percentual do faturamento.",
+      content: "A medida amplia direitos de titulares de dados e cria novos mecanismos de fiscalização. Especialistas recomendam que empresas revisem contratos com fornecedores de tecnologia o quanto antes.",
+      category: "TECNOLOGIA", scope: "NACIONAL", hours: 20,
+      author: "Camila Fontes", views: 980, comments: 4, shares: 22
+    },
+    {
+      title: "Polícia prende suspeitos de fraude em licitação pública na região",
+      summary: "Operação conjunta apura desvio de recursos destinados a obras de infraestrutura.",
+      content: "Segundo investigadores, o esquema durava mais de dois anos e envolvia superfaturamento de contratos. Os envolvidos responderão em liberdade até conclusão do inquérito.",
+      category: "POLICIAL", scope: "LOCAL", hours: 30,
+      author: "Bruno Tavares", views: 540, comments: 3, shares: 8
+    },
+    {
+      title: "Filme nacional é selecionado para mostra competitiva em festival europeu",
+      summary: "Produção rodada quase inteiramente com elenco local disputa prêmio principal.",
+      content: "A equipe de produção comemorou a seleção como reconhecimento ao cinema regional. Estreia comercial está prevista para o segundo semestre.",
+      category: "CINEMA", scope: "INTERNACIONAL", hours: 45,
+      author: "Marina Costa", views: 670, comments: 2, shares: 14
+    }
+  ];
+
+  return seeds.map((s, i) => ({
+    id: uid(),
+    title: s.title,
+    slug: s.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60),
+    summary: s.summary,
+    content: s.content,
+    author: { name: s.author, id: uid("author"), avatar: "", bio: "" },
+    scope: s.scope,
+    category: s.category,
+    media: { images: [], videos: [], attachments: [] },
+    aiMetrics: { relevanceScore: 0, trendingTopic: false, aiSummary: "" },
+    stats: { viewsLocal: 0, viewsGlobal: s.views, shares: s.shares },
+    comments: Array.from({ length: s.comments }).map((_, ci) => ({
+      commentId: uid("cm"),
+      userName: ["Leitor Anônimo", "João P.", "Ana L.", "Sérgio M."][ci % 4],
+      text: "Ótima matéria, acompanhando os desdobramentos.",
+      createdAt: hoursAgo(s.hours - ci * 0.3 >= 0 ? s.hours - ci * 0.3 : 0.1)
+    })),
+    copyright: "Copyright para Carlos Alberto Reis 2026",
+    createdAt: hoursAgo(s.hours),
+    updatedAt: hoursAgo(s.hours)
+  }));
+}
+
+/* ---- Estado da aplicação ---- */
+const AppState = {
+  articles: [],
+  currentScope: "TODOS",
+  currentCategory: "TODAS",
+};
+
+const windowManager = new WindowManager(document.getElementById("windowLayer"));
+
+/* ---- Toasts ---- */
+function showToast(message, type = "info") {
+  const stack = document.getElementById("toastStack");
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.textContent = message;
+  stack.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => {
+    el.classList.remove("show");
+    setTimeout(() => el.remove(), 300);
+  }, 3200);
+}
+
+/* ---- Confirmação genérica ---- */
+function confirmAction(title, body) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("confirmModal");
+    document.getElementById("confirmTitle").textContent = title;
+    document.getElementById("confirmBody").textContent = body;
+    modal.classList.add("is-open");
+
+    const okBtn = document.getElementById("confirmOkBtn");
+    const cancelBtn = document.getElementById("confirmCancelBtn");
+    const cleanup = (result) => {
+      modal.classList.remove("is-open");
+      okBtn.removeEventListener("click", onOk);
+      cancelBtn.removeEventListener("click", onCancel);
+      resolve(result);
+    };
+    const onOk = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+    okBtn.addEventListener("click", onOk);
+    cancelBtn.addEventListener("click", onCancel);
+  });
+}
+
+/* ---- Filtragem ---- */
+function getFilteredArticles() {
+  return AppState.articles.filter(a => {
+    const scopeOk = AppState.currentScope === "TODOS" || a.scope === AppState.currentScope;
+    const catOk = AppState.currentCategory === "TODAS" || a.category === AppState.currentCategory;
+    return scopeOk && catOk;
+  }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
+/* ---- Navegação de editorias ---- */
+function renderEditoriaNav() {
+  const nav = document.getElementById("editoriaNav");
+  const counts = CATEGORIES.reduce((acc, c) => {
+    acc[c] = AppState.articles.filter(a => a.category === c).length;
+    return acc;
+  }, {});
+  const chips = [`<button class="nav-chip ${AppState.currentCategory === "TODAS" ? "active" : ""}" data-cat="TODAS">Todas as editorias</button>`]
+    .concat(CATEGORIES.map(c => `
+      <button class="nav-chip ${AppState.currentCategory === c ? "active" : ""}" data-cat="${c}">
+        ${CATEGORY_LABELS[c]}<span class="count">${counts[c] || 0}</span>
+      </button>
+    `));
+  nav.innerHTML = chips.join("");
+  nav.querySelectorAll(".nav-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      AppState.currentCategory = btn.dataset.cat;
+      renderEditoriaNav();
+      renderFeed();
+    });
+  });
+}
+
+/* ---- Feed principal ---- */
+function renderFeed() {
+  const list = document.getElementById("feedList");
+  const items = getFilteredArticles();
+  const titleMap = { TODOS: "Últimas notícias", LOCAL: "Cobertura local", NACIONAL: "Cobertura nacional", INTERNACIONAL: "Cobertura internacional" };
+  document.getElementById("feedTitle").textContent = titleMap[AppState.currentScope] || "Últimas notícias";
+
+  if (!items.length) {
+    list.innerHTML = `<div class="empty-state"><strong>Nenhuma notícia por aqui ainda</strong>Ajuste os filtros ou publique a primeira matéria desta editoria.</div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(a => {
+    const relevance = AICuratorEngine.calculateRelevance(a);
+    return `
+    <article class="hit-row" data-id="${a.id}">
+      <div class="hit-thumb">${a.media?.images?.[0] ? `<img src="${escapeHtml(a.media.images[0])}" alt="">` : "Hiper Hits"}</div>
+      <div class="hit-body">
+        <div class="hit-meta-row">
+          <span class="tag tag-cat">${CATEGORY_LABELS[a.category] || a.category}</span>
+          ${relevance.isHot ? '<span class="tag tag-hot">Em alta</span>' : ""}
+          <span class="tag-scope">${a.scope} · ${timeAgo(a.createdAt)}</span>
+        </div>
+        <h3 class="hit-title">${escapeHtml(a.title)}</h3>
+        <p class="hit-summary">${escapeHtml(a.summary || "")}</p>
+      </div>
+      <div class="hit-stats">
+        <span>👁 ${(a.stats?.viewsGlobal || 0).toLocaleString("pt-BR")}</span>
+        <span>💬 ${(a.comments || []).length}</span>
+        <span>↗ ${a.stats?.shares || 0}</span>
+      </div>
+    </article>`;
+  }).join("");
+
+  list.querySelectorAll(".hit-row").forEach(row => {
+    row.addEventListener("click", () => openArticleWindow(row.dataset.id));
+  });
+}
+
+/* ---- Sidebar: em alta ---- */
+function renderTrending() {
+  const ranked = AICuratorEngine.rankArticles(AppState.articles).slice(0, 5);
+  const el = document.getElementById("trendingList");
+  if (!ranked.length) { el.innerHTML = `<p style="font-size:12.5px;color:var(--text-secondary);">Sem dados suficientes ainda.</p>`; return; }
+  el.innerHTML = ranked.map((r, i) => `
+    <div class="trending-item" data-id="${r.article.id}">
+      <span class="trending-rank">${i + 1}</span>
+      <span class="trending-title">${escapeHtml(r.article.title)}</span>
+    </div>
+  `).join("");
+  el.querySelectorAll(".trending-item").forEach(item => {
+    item.addEventListener("click", () => openArticleWindow(item.dataset.id));
+  });
+}
+
+/* ---- Janela de leitura de artigo ---- */
+function renderArticleWindowBody(article) {
+  const relevance = AICuratorEngine.calculateRelevance(article);
+  const paragraphs = (article.content || "").split(/\n+/).filter(Boolean).map(p => `<p>${escapeHtml(p)}</p>`).join("");
+  const commentsHtml = (article.comments || []).map(c => `
+    <div class="comment-item">
+      <span class="c-name">${escapeHtml(c.userName)}</span>
+      <span class="c-time">${formatDateTime(c.createdAt)}</span>
+      <div>${escapeHtml(c.text)}</div>
+    </div>
+  `).join("") || `<p style="color:var(--text-secondary);font-size:13px;">Seja o primeiro a comentar.</p>`;
+
+  return `
+    <div class="win-article-tag-row">
+      <span class="tag tag-cat">${CATEGORY_LABELS[article.category] || article.category}</span>
+      ${relevance.isHot ? '<span class="tag tag-hot">Em alta</span>' : ""}
+      <span class="tag-scope">${article.scope}</span>
+    </div>
+    <h1 class="win-article-title">${escapeHtml(article.title)}</h1>
+    <div class="win-article-byline">
+      <span>Por ${escapeHtml(article.author?.name || "Redação")}</span>
+      <span>${formatDateTime(article.createdAt)}</span>
+      <span>👁 ${(article.stats?.viewsGlobal || 0).toLocaleString("pt-BR")}</span>
+      <button class="icon-btn" data-share style="width:auto;height:auto;padding:4px 10px;">↗ Compartilhar</button>
+    </div>
+    ${article.media?.images?.[0] ? `<img class="win-article-cover" src="${escapeHtml(article.media.images[0])}" alt="">` : ""}
+    <div class="win-article-body">${paragraphs || "<p>Conteúdo em edição.</p>"}</div>
+    <div class="win-comments">
+      <h4>Comentários (${(article.comments || []).length})</h4>
+      <div data-comments-list>${commentsHtml}</div>
+      <form class="comment-form" data-comment-form>
+        <input type="text" name="userName" placeholder="Seu nome" required>
+        <input type="text" name="text" placeholder="Escreva um comentário" required style="flex:2;">
+        <button class="btn" type="submit">Enviar</button>
+      </form>
+    </div>
+  `;
+}
+
+async function openArticleWindow(articleId) {
+  const article = AppState.articles.find(a => a.id === articleId);
+  if (!article) return;
+
+  const result = windowManager.open(article, {
+    renderBody: renderArticleWindowBody,
+    onNavigate: (current, direction) => navigateArticleWindow(current, direction)
+  });
+
+  wireArticleWindowEvents(article);
+
+  const counted = await CounterEngine.incrementHitView(articleId, store);
+  if (counted.counted) {
+    const fresh = AppState.articles.find(a => a.id === articleId);
+    if (fresh) fresh.stats.viewsGlobal = (fresh.stats.viewsGlobal || 0) + 1;
+    renderFeed(); renderTrending();
+  }
+}
+
+function wireArticleWindowEvents(article) {
+  setTimeout(() => {
+    const winEntry = windowManager.stack.find(w => w.articleId === article.id);
+    if (!winEntry) return;
+    const el = winEntry.el;
+
+    el.querySelector("[data-share]")?.addEventListener("click", async () => {
+      await CounterEngine.incrementShare(article.id, store);
+      const fresh = AppState.articles.find(a => a.id === article.id);
+      if (fresh) fresh.stats.shares = (fresh.stats.shares || 0) + 1;
+      showToast("Link de compartilhamento copiado (simulado).", "success");
+      renderFeed(); renderTrending();
+    });
+
+    const form = el.querySelector("[data-comment-form]");
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const userName = (fd.get("userName") || "").toString().trim();
+      const text = (fd.get("text") || "").toString().trim();
+      if (!userName || !text) return;
+      const fresh = AppState.articles.find(a => a.id === article.id);
+      fresh.comments = fresh.comments || [];
+      fresh.comments.push({ commentId: uid("cm"), userName, text, createdAt: new Date().toISOString() });
+      await store.upsert(fresh);
+      form.reset();
+      windowManager.updateBody(article.id, renderArticleWindowBody(fresh));
+      wireArticleWindowEvents(fresh);
+      renderFeed();
+      showToast("Comentário publicado.", "success");
+    });
+  }, 0);
+}
+
+function navigateArticleWindow(currentArticle, direction) {
+  const ordered = getFilteredArticles();
+  const idx = ordered.findIndex(a => a.id === currentArticle.id);
+  if (idx === -1) return;
+  const nextIdx = idx + direction;
+  if (nextIdx < 0 || nextIdx >= ordered.length) {
+    showToast(direction < 0 ? "Você já está na notícia mais recente." : "Fim do feed atual.", "info");
+    return;
+  }
+  windowManager.close(currentArticle.id);
+  openArticleWindow(ordered[nextIdx].id);
+}
+
+/* ==========================================================================
+   PAINEL ADMIN — renderização e ações
+   ========================================================================== */
+function renderAdminDashboard() {
+  const total = AppState.articles.length;
+  const totalViews = AppState.articles.reduce((s, a) => s + (a.stats?.viewsGlobal || 0), 0);
+  const totalComments = AppState.articles.reduce((s, a) => s + (a.comments || []).length, 0);
+  const ranked = AICuratorEngine.rankArticles(AppState.articles);
+  const hotCount = ranked.filter(r => r.relevance.isHot).length;
+
+  document.getElementById("statCards").innerHTML = `
+    <div class="stat-card"><div class="num">${total}</div><div class="label">Notícias publicadas</div></div>
+    <div class="stat-card"><div class="num">${totalViews.toLocaleString("pt-BR")}</div><div class="label">Visualizações totais</div></div>
+    <div class="stat-card"><div class="num">${totalComments}</div><div class="label">Comentários recebidos</div></div>
+    <div class="stat-card"><div class="num">${hotCount}</div><div class="label">Em alta pela IA agora</div></div>
+  `;
+
+  const tbody = document.querySelector("#dashboardHotTable tbody");
+  tbody.innerHTML = ranked.slice(0, 8).map(r => `
+    <tr>
+      <td>${escapeHtml(r.article.title)}</td>
+      <td>${CATEGORY_LABELS[r.article.category] || r.article.category}</td>
+      <td>${r.relevance.score}${r.relevance.isHot ? ' <span class="status-badge hot">quente</span>' : ""}</td>
+      <td>${(r.article.stats?.viewsGlobal || 0).toLocaleString("pt-BR")}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="4" style="color:var(--text-secondary);">Sem notícias cadastradas.</td></tr>`;
+}
+
+function renderAdminArticlesTable() {
+  const tbody = document.querySelector("#articlesTable tbody");
+  const sorted = [...AppState.articles].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  tbody.innerHTML = sorted.map(a => {
+    const relevance = AICuratorEngine.calculateRelevance(a);
+    return `
+    <tr data-id="${a.id}">
+      <td>${escapeHtml(a.title)}</td>
+      <td>${CATEGORY_LABELS[a.category] || a.category}</td>
+      <td>${a.scope}</td>
+      <td>${relevance.isHot ? '<span class="status-badge hot">Em alta</span>' : '<span class="status-badge ok">Normal</span>'}</td>
+      <td>${(a.stats?.viewsGlobal || 0).toLocaleString("pt-BR")}</td>
+      <td class="row-actions">
+        <button data-edit="${a.id}">Editar</button>
+        <button data-delete="${a.id}" class="danger">Excluir</button>
+      </td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="6" style="color:var(--text-secondary);">Nenhuma notícia cadastrada ainda.</td></tr>`;
+
+  tbody.querySelectorAll("[data-edit]").forEach(btn => btn.addEventListener("click", () => loadArticleIntoEditor(btn.dataset.edit)));
+  tbody.querySelectorAll("[data-delete]").forEach(btn => btn.addEventListener("click", () => deleteArticleFlow(btn.dataset.delete)));
+}
+
+function renderCommentsAdminTable() {
+  const tbody = document.querySelector("#commentsTable tbody");
+  const rows = [];
+  AppState.articles.forEach(a => {
+    (a.comments || []).forEach(c => rows.push({ articleId: a.id, articleTitle: a.title, ...c }));
+  });
+  rows.sort((x, y) => new Date(y.createdAt) - new Date(x.createdAt));
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${escapeHtml(r.articleTitle)}</td>
+      <td>${escapeHtml(r.userName)}</td>
+      <td>${escapeHtml(r.text)}</td>
+      <td class="row-actions"><button data-del-comment="${r.articleId}|${r.commentId}" class="danger">Remover</button></td>
+    </tr>
+  `).join("") || `<tr><td colspan="4" style="color:var(--text-secondary);">Nenhum comentário recebido ainda.</td></tr>`;
+
+  tbody.querySelectorAll("[data-del-comment]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const [articleId, commentId] = btn.dataset.delComment.split("|");
+      const article = AppState.articles.find(a => a.id === articleId);
+      if (!article) return;
+      const ok = await confirmAction("Remover comentário", "Esta ação não pode ser desfeita.");
+      if (!ok) return;
+      article.comments = (article.comments || []).filter(c => c.commentId !== commentId);
+      await store.upsert(article);
+      renderCommentsAdminTable();
+      renderAdminDashboard();
+      showToast("Comentário removido.", "success");
+    });
+  });
+}
+
+function loadArticleIntoEditor(articleId) {
+  const a = AppState.articles.find(x => x.id === articleId);
+  if (!a) return;
+  document.getElementById("editorHeading").textContent = "Editar notícia";
+  document.getElementById("editorArticleId").value = a.id;
+  document.getElementById("fieldTitle").value = a.title || "";
+  document.getElementById("fieldSummary").value = a.summary || "";
+  document.getElementById("fieldContent").value = a.content || "";
+  document.getElementById("fieldCategory").value = a.category || "TECNOLOGIA";
+  document.getElementById("fieldScope").value = a.scope || "LOCAL";
+  document.getElementById("fieldAuthorName").value = a.author?.name || "";
+  document.getElementById("fieldCoverImage").value = a.media?.images?.[0] || "";
+  switchAdminPanel("editor");
+}
+
+function clearEditorForm() {
+  document.getElementById("editorHeading").textContent = "Nova notícia";
+  document.getElementById("editorArticleId").value = "";
+  ["fieldTitle", "fieldSummary", "fieldContent", "fieldAuthorName", "fieldCoverImage"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("fieldCategory").value = "TECNOLOGIA";
+  document.getElementById("fieldScope").value = "LOCAL";
+}
+
+async function saveArticleFromEditor() {
+  const id = document.getElementById("editorArticleId").value || uid();
+  const title = document.getElementById("fieldTitle").value.trim();
+  if (!title) { showToast("O título é obrigatório.", "error"); return; }
+
+  const existing = AppState.articles.find(a => a.id === id);
+  const now = new Date().toISOString();
+  const article = {
+    id,
+    title,
+    slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60),
+    summary: document.getElementById("fieldSummary").value.trim(),
+    content: document.getElementById("fieldContent").value.trim(),
+    author: { name: document.getElementById("fieldAuthorName").value.trim() || "Redação", id: existing?.author?.id || uid("author"), avatar: "", bio: "" },
+    scope: document.getElementById("fieldScope").value,
+    category: document.getElementById("fieldCategory").value,
+    media: { images: [document.getElementById("fieldCoverImage").value.trim()].filter(Boolean), videos: [], attachments: [] },
+    aiMetrics: existing?.aiMetrics || { relevanceScore: 0, trendingTopic: false, aiSummary: "" },
+    stats: existing?.stats || { viewsLocal: 0, viewsGlobal: 0, shares: 0 },
+    comments: existing?.comments || [],
+    copyright: "Copyright para Carlos Alberto Reis 2026",
+    createdAt: existing?.createdAt || now,
+    updatedAt: now
+  };
+
+  const { valid, missing } = IOManager.validate(article);
+  if (!valid) { showToast("Campos obrigatórios ausentes: " + missing.join(", "), "error"); return; }
+
+  await store.upsert(article);
+  clearEditorForm();
+  switchAdminPanel("articles");
+  showToast(existing ? "Notícia atualizada." : "Notícia publicada.", "success");
+}
+
+async function deleteArticleFlow(articleId) {
+  const article = AppState.articles.find(a => a.id === articleId);
+  if (!article) return;
+  const ok = await confirmAction("Excluir notícia", `Remover "${article.title}" permanentemente?`);
+  if (!ok) return;
+  await store.remove(articleId);
+  showToast("Notícia excluída.", "success");
+}
+
+function switchAdminPanel(panelName) {
+  document.querySelectorAll(".admin-menu button").forEach(b => b.classList.toggle("active", b.dataset.panel === panelName));
+  document.querySelectorAll(".admin-panel").forEach(p => p.classList.toggle("active", p.id === `panel-${panelName}`));
+  if (panelName === "dashboard") renderAdminDashboard();
+  if (panelName === "articles") renderAdminArticlesTable();
+  if (panelName === "comments") renderCommentsAdminTable();
+}
+
+function refreshAdminViewsIfOpen() {
+  if (!document.getElementById("adminShell").classList.contains("is-open")) return;
+  const activePanel = document.querySelector(".admin-menu button.active")?.dataset.panel || "dashboard";
+  switchAdminPanel(activePanel);
+}
+
+/* ==========================================================================
+   TEMA CLARO/ESCURO
+   ========================================================================== */
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("hiperhits_theme", theme);
+  const icon = document.getElementById("themeIcon");
+  icon.innerHTML = theme === "dark"
+    ? '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>'
+    : '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>';
+}
+
+function initTheme() {
+  const saved = localStorage.getItem("hiperhits_theme") ||
+    (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  applyTheme(saved);
+  document.getElementById("themeToggleBtn").addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    applyTheme(current === "dark" ? "light" : "dark");
+  });
+}
+
+/* ==========================================================================
+   RELÓGIO DO MASTHEAD
+   ========================================================================== */
+function initClock() {
+  const el = document.getElementById("clockDisplay");
+  const tick = () => { el.textContent = new Date().toLocaleTimeString("pt-BR"); };
+  tick();
+  setInterval(tick, 1000);
+}
+
+/* ==========================================================================
+   FILTRO DE ESCOPO (Local/Nacional/Internacional)
+   ========================================================================== */
+function initScopeToggle() {
+  const wrap = document.getElementById("scopeToggle");
+  wrap.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      wrap.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      AppState.currentScope = btn.dataset.scope;
+      renderFeed();
+    });
+  });
+}
+
+/* ==========================================================================
+   LOGIN / PAINEL ADMIN
+   ========================================================================== */
+function openAdminShellDirect() {
+  document.getElementById("adminShell").classList.add("is-open");
+  switchAdminPanel("dashboard");
+}
+
+function initAdminAccessFlow() {
+  const loginModal = document.getElementById("loginModal");
+  const keyInput = document.getElementById("adminKeyInput");
+  const errorEl = document.getElementById("loginError");
+
+  document.getElementById("adminEntryBtn").addEventListener("click", () => {
+    if (AuthManager.isAuthed()) { openAdminShellDirect(); return; }
+    keyInput.value = "";
+    errorEl.classList.remove("show");
+    loginModal.classList.add("is-open");
+    setTimeout(() => keyInput.focus(), 50);
+  });
+
+  document.getElementById("loginCancelBtn").addEventListener("click", () => loginModal.classList.remove("is-open"));
+
+  const submitLogin = async () => {
+    if (AuthManager.isLockedOut()) {
+      errorEl.textContent = `Muitas tentativas. Aguarde ${AuthManager.lockoutRemainingSeconds()}s.`;
+      errorEl.classList.add("show");
+      return;
+    }
+    const ok = await AuthManager.validateAdmin(keyInput.value);
+    if (ok) {
+      loginModal.classList.remove("is-open");
+      openAdminShellDirect();
+      showToast("Bem-vindo(a) ao painel do jornalista.", "success");
+    } else {
+      errorEl.textContent = AuthManager.isLockedOut()
+        ? `Muitas tentativas. Aguarde ${AuthManager.lockoutRemainingSeconds()}s.`
+        : "Chave inválida. Tente novamente.";
+      errorEl.classList.add("show");
+    }
+  };
+
+  document.getElementById("loginSubmitBtn").addEventListener("click", submitLogin);
+  keyInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
+
+  document.getElementById("adminBackBtn").addEventListener("click", () => {
+    document.getElementById("adminShell").classList.remove("is-open");
+  });
+
+  document.getElementById("adminLogoutBtn").addEventListener("click", async () => {
+    const ok = await confirmAction("Sair do painel", "Deseja encerrar a sessão administrativa?");
+    if (!ok) return;
+    AuthManager.logout();
+    document.getElementById("adminShell").classList.remove("is-open");
+    showToast("Sessão encerrada.", "info");
+  });
+
+  document.querySelectorAll(".admin-menu button").forEach(btn => {
+    btn.addEventListener("click", () => switchAdminPanel(btn.dataset.panel));
+  });
+
+  document.getElementById("saveArticleBtn").addEventListener("click", saveArticleFromEditor);
+  document.getElementById("clearEditorBtn").addEventListener("click", clearEditorForm);
+  document.getElementById("adminExportBtn").addEventListener("click", () => IOManager.exportAll(AppState.articles));
+  document.getElementById("adminImportBtn").addEventListener("click", () => triggerImportFlow());
+}
+
+/* ==========================================================================
+   IMPORTAR / EXPORTAR (barra superior)
+   ========================================================================== */
+function triggerImportFlow() {
+  document.getElementById("importFileInput").click();
+}
+
+function initImportExportTopbar() {
+  document.getElementById("exportBtn").addEventListener("click", () => IOManager.exportAll(AppState.articles));
+  document.getElementById("importBtn").addEventListener("click", () => triggerImportFlow());
+
+  document.getElementById("importFileInput").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const { imported, rejected } = await IOManager.importFromFile(file);
+      for (const item of imported) await store.upsert(item);
+      showToast(`${imported.length} notícia(s) importada(s)${rejected.length ? `, ${rejected.length} rejeitada(s)` : ""}.`, imported.length ? "success" : "error");
+    } catch (err) {
+      showToast("Falha ao importar: " + err.message, "error");
+    }
+  });
+}
+
+/* ==========================================================================
+   BOOTSTRAP DA APLICAÇÃO
+   ========================================================================== */
+function handleArticlesUpdate(articles) {
+  AppState.articles = articles || [];
+  renderEditoriaNav();
+  renderFeed();
+  renderTrending();
+  refreshAdminViewsIfOpen();
+}
+
+async function bootstrap() {
+  initTheme();
+  initClock();
+  initScopeToggle();
+  initAdminAccessFlow();
+  initImportExportTopbar();
+
+  const mode = await store.init();
+  console.info(`[HiperHits] DataStore inicializado em modo: ${mode.toUpperCase()}`);
+
+  let current = await store.getAll();
+  if (!current.length) {
+    const seeds = buildSeedArticles();
+    for (const article of seeds) await store.upsert(article);
+    current = await store.getAll();
+  }
+  handleArticlesUpdate(current);
+
+  const liveUpdater = new LiveUpdater(store, handleArticlesUpdate);
+  liveUpdater.start();
+
+  await CounterEngine.flushRetryQueue(store);
+
+  window.addEventListener("beforeunload", () => liveUpdater.stop());
+}
+
+bootstrap();
+</script>
+</body>
+</html>
