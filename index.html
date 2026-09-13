@@ -724,15 +724,23 @@ body {
    modo Local (localStorage), preservando a mesma interface e o mesmo schema
    de dados, para que a migração para Cloud não exija nenhuma mudança de UI.
    -------------------------------------------------------------------------- */
-const FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAjKB3XlELL3v5r7oObrnXWbNLsfnrACt4",
+  authDomain: "hp-hits.firebaseapp.com",
+  projectId: "hp-hits",
+  storageBucket: "hp-hits.firebasestorage.app",
+  messagingSenderId: "730623868511",
+  appId: "1:730623868511:web:6fb0d34a1a2974d945a5ea"
 };
 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 const CLOUD_MODE_ENABLED = Boolean(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
 
 let firestoreDb = null;
