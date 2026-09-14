@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#F4F0E6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#14171D" media="(prefers-color-scheme: dark)">
 <title>Hiper Hits 2026 — Jornalismo Independente</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="description" content="CMS jornalístico Hiper Hits 2026 — cobertura local, nacional e internacional com curadoria por IA.">
 <style>
 /* ==========================================================================
@@ -805,7 +806,7 @@ body {
 
 <!-- Modal de login administrativo -->
 <div class="modal-scrim" id="loginModal">
-  <div class="modal-box">
+  <form class="modal-box" id="loginForm">
     <h3>Acesso restrito</h3>
     <p class="hint">Informe a credencial de editor para acessar o painel do jornalista.</p>
     <div class="field">
@@ -814,10 +815,10 @@ body {
       <div class="field-error" id="loginError">Chave inválida. Tente novamente.</div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" id="loginCancelBtn">Cancelar</button>
-      <button class="btn" id="loginSubmitBtn">Entrar</button>
+      <button type="button" class="btn btn-ghost" id="loginCancelBtn">Cancelar</button>
+      <button type="submit" class="btn" id="loginSubmitBtn">Entrar</button>
     </div>
-  </div>
+  </form>
 </div>
 
 <!-- Modal de confirmação genérico -->
@@ -2286,8 +2287,10 @@ function initAdminAccessFlow() {
     }
   };
 
-  document.getElementById("loginSubmitBtn").addEventListener("click", submitLogin);
-  keyInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
+   document.getElementById("loginForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    submitLogin();
+  });
 
   document.getElementById("adminBackBtn").addEventListener("click", () => {
     document.getElementById("adminShell").classList.remove("is-open");
