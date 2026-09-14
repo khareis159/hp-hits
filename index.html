@@ -26,9 +26,9 @@ img { max-width: 100%; display: block; }
   --paper-raised: #FFFFFF;
   --text-primary: #1B2430;
   --text-secondary: #5B6472;
-  --accent: #B1272D;       /* vermelho jornal — "quente/breaking" */
+  --accent: #B1272D;
   --accent-hover: #932025;
-  --gold: #B8912B;         /* destaque editorial */
+  --gold: #B8912B;
   --border: #DBD3C1;
   --border-strong: #B7ACA0;
   --success: #2E7D4F;
@@ -149,6 +149,7 @@ body {
 }
 .icon-btn:hover { border-color: var(--border-strong); transform: translateY(-1px); }
 .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+.icon-btn.is-active { border-color: var(--accent); color: var(--accent); }
 
 .btn {
   border: 1px solid var(--ink);
@@ -219,6 +220,8 @@ body {
   margin-bottom: 18px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .feed-toolbar h2 {
   font-family: var(--font-serif);
@@ -226,12 +229,31 @@ body {
   margin: 0;
   font-weight: 700;
 }
+.feed-toolbar-right {
+  display: flex; align-items: center; gap: 8px;
+}
 .scope-toggle { display: flex; gap: 2px; }
 .scope-toggle button {
   border: none; background: transparent; color: var(--text-secondary);
   font-size: 12.5px; padding: 6px 10px; border-radius: var(--radius-sm);
 }
 .scope-toggle button.active { background: var(--paper-raised); color: var(--text-primary); font-weight: 600; box-shadow: inset 0 0 0 1px var(--border); }
+
+.view-toggle {
+  display: flex; gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  background: var(--paper-raised);
+}
+.view-toggle button {
+  border: none; background: transparent; color: var(--text-secondary);
+  font-size: 12px; padding: 5px 10px; border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.view-toggle button.active { background: var(--ink); color: var(--paper); font-weight: 600; }
+[data-theme="dark"] .view-toggle button.active { background: var(--text-primary); color: var(--ink); }
+.view-toggle button svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.8; }
 
 .hit-row {
   display: grid;
@@ -243,6 +265,8 @@ body {
   cursor: pointer;
 }
 .hit-row:hover .hit-title { color: var(--accent); }
+.hit-row.is-archived .hit-title { color: var(--text-secondary); }
+.hit-row.is-archived .hit-thumb { filter: grayscale(0.5); opacity: 0.8; }
 .hit-thumb {
   width: 108px; height: 76px; border-radius: var(--radius-sm);
   background: var(--border) center/cover no-repeat;
@@ -262,7 +286,20 @@ body {
 }
 .tag-cat { background: var(--paper-raised); box-shadow: inset 0 0 0 1px var(--border); color: var(--text-secondary); }
 .tag-hot { background: var(--accent); color: #fff; }
+.tag-archived { background: var(--border-strong); color: var(--paper-raised); }
+.tag-source { background: transparent; color: var(--text-secondary); font-size: 11px; }
 .tag-scope { color: var(--text-secondary); font-size: 11px; }
+
+.expiry-tag {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.expiry-tag.soon { color: var(--gold); font-weight: 600; }
+.expiry-tag.expired { color: var(--accent); font-weight: 600; }
+
 .hit-title {
   font-family: var(--font-serif);
   font-size: 17.5px;
@@ -311,7 +348,6 @@ body {
 .trending-title { font-size: 12.8px; line-height: 1.35; }
 .trending-title:hover { color: var(--accent); }
 
-
 /* ==========================================================================
    JANELAS FLUTUANTES / MODAIS (windows.css)
    ========================================================================== */
@@ -355,12 +391,31 @@ body {
 .window-nav-actions button.win-close:hover { background: var(--accent); color: #fff; }
 
 .window-body { padding: 26px 30px 34px; overflow-y: auto; }
-.win-article-tag-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+.win-article-tag-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
 .win-article-title { font-family: var(--font-serif); font-size: 28px; font-weight: 700; line-height: 1.22; margin: 0 0 10px; }
-.win-article-byline { color: var(--text-secondary); font-size: 12.5px; margin-bottom: 18px; display: flex; gap: 14px; flex-wrap: wrap; }
+.win-article-byline { color: var(--text-secondary); font-size: 12.5px; margin-bottom: 18px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
 .win-article-cover { width: 100%; border-radius: 8px; margin-bottom: 18px; background: var(--border); min-height: 160px; object-fit: cover; }
 .win-article-body { font-size: 15.5px; line-height: 1.75; color: var(--text-primary); white-space: pre-wrap; }
 .win-article-body p { margin: 0 0 14px; }
+
+.win-article-archived-notice {
+  background: var(--border);
+  border-left: 3px solid var(--border-strong);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+.win-article-source {
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.win-article-source a { color: var(--accent); text-decoration: underline; }
 
 .win-comments { margin-top: 30px; border-top: 1px solid var(--border); padding-top: 20px; }
 .win-comments h4 { font-family: var(--font-serif); font-size: 15px; margin: 0 0 12px; }
@@ -397,6 +452,9 @@ body {
   font-family: var(--font-sans);
 }
 .field textarea { resize: vertical; min-height: 90px; }
+.field input[type="checkbox"] { width: auto; }
+.field-checkbox { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-secondary); }
+.field-checkbox input { margin: 0; }
 .field-error { color: var(--accent); font-size: 12px; margin-top: 6px; display: none; }
 .field-error.show { display: block; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
@@ -430,13 +488,15 @@ body {
 .admin-table th { text-align: left; font-size: 11px; color: var(--text-secondary); text-transform: none; padding: 8px 10px; border-bottom: 2px solid var(--border-strong); }
 .admin-table td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 .admin-table tr:hover td { background: var(--paper-raised); }
-.row-actions { display: flex; gap: 6px; }
+.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .row-actions button { border: 1px solid var(--border); background: var(--paper-raised); border-radius: 5px; padding: 5px 9px; font-size: 12px; }
 .row-actions button.danger { color: var(--accent); border-color: var(--accent); }
+.row-actions button.reactivate { color: var(--success); border-color: var(--success); }
 
-.status-badge { font-size: 10.5px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+.status-badge { font-size: 10.5px; padding: 2px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
 .status-badge.hot { background: var(--accent); color: #fff; }
 .status-badge.ok { background: var(--success); color: #fff; }
+.status-badge.archived { background: var(--border-strong); color: var(--paper-raised); }
 
 .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .editor-grid .span-2 { grid-column: 1 / -1; }
@@ -495,7 +555,7 @@ body {
     "firebase/firestore": "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js"
   }
 }
-</script>  
+</script>
 </head>
 <body>
 
@@ -527,11 +587,23 @@ body {
   <section class="feed-column">
     <div class="feed-toolbar">
       <h2 id="feedTitle">Últimas notícias</h2>
-      <div class="scope-toggle" id="scopeToggle">
-        <button data-scope="TODOS" class="active">Todos</button>
-        <button data-scope="LOCAL">Local</button>
-        <button data-scope="NACIONAL">Nacional</button>
-        <button data-scope="INTERNACIONAL">Internacional</button>
+      <div class="feed-toolbar-right">
+        <div class="view-toggle" id="viewToggle">
+          <button data-view="ativas" class="active" title="Matérias ativas">
+            <svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18"></path></svg>
+            Ativas
+          </button>
+          <button data-view="arquivadas" title="Arquivo histórico">
+            <svg viewBox="0 0 24 24"><path d="M3 7h18v13H3zM3 7l2-3h14l2 3M10 12h4"></path></svg>
+            Arquivo
+          </button>
+        </div>
+        <div class="scope-toggle" id="scopeToggle">
+          <button data-scope="TODOS" class="active">Todos</button>
+          <button data-scope="LOCAL">Local</button>
+          <button data-scope="NACIONAL">Nacional</button>
+          <button data-scope="INTERNACIONAL">Internacional</button>
+        </div>
       </div>
     </div>
     <div id="feedList"></div>
@@ -634,7 +706,7 @@ body {
       <section class="admin-panel" id="panel-articles">
         <h2>Todas as notícias</h2>
         <table class="admin-table" id="articlesTable">
-          <thead><tr><th>Título</th><th>Categoria</th><th>Escopo</th><th>Status</th><th>Views</th><th>Ações</th></tr></thead>
+          <thead><tr><th>Título</th><th>Categoria</th><th>Escopo</th><th>Status</th><th>Expira em</th><th>Views</th><th>Ações</th></tr></thead>
           <tbody></tbody>
         </table>
       </section>
@@ -650,7 +722,7 @@ body {
           </div>
           <div class="field span-2">
             <label for="fieldSummary">Resumo (chamada)</label>
-            <textarea id="fieldSummary" ="min-height:60px;" placeholder="Resumo curto para o feed"></textarea>
+            <textarea id="fieldSummary" style="min-height:60px;" placeholder="Resumo curto para o feed"></textarea>
           </div>
           <div class="field span-2">
             <label for="fieldContent">Conteúdo completo</label>
@@ -677,12 +749,35 @@ body {
             </select>
           </div>
           <div class="field">
+            <label for="fieldLifetime">Tempo de exibição</label>
+            <select id="fieldLifetime">
+              <option value="1">1 hora</option>
+              <option value="6">6 horas</option>
+              <option value="24">24 horas</option>
+              <option value="48" selected>48 horas</option>
+              <option value="72">72 horas</option>
+              <option value="168">7 dias</option>
+              <option value="720">30 dias</option>
+              <option value="never">Sem expiração</option>
+            </select>
+          </div>
+          <div class="field">
             <label for="fieldAuthorName">Autor</label>
             <input type="text" id="fieldAuthorName" placeholder="Nome do jornalista">
           </div>
           <div class="field">
             <label for="fieldCoverImage">URL da imagem de capa</label>
             <input type="text" id="fieldCoverImage" placeholder="https://...">
+          </div>
+          <div class="field">
+            <label for="fieldSourceUrl">Link da fonte (opcional)</label>
+            <input type="url" id="fieldSourceUrl" placeholder="https://...">
+          </div>
+          <div class="field span-2" id="resetLifetimeWrap" style="display:none;">
+            <label class="field-checkbox">
+              <input type="checkbox" id="fieldResetLifetime">
+              Reiniciar contagem de expiração a partir de agora
+            </label>
           </div>
         </div>
         <div class="modal-actions" style="justify-content:flex-start;margin-top:18px;">
@@ -712,7 +807,7 @@ body {
     </div>
   </div>
 </div>
-   
+
 <script type="module">
 /* --------------------------------------------------------------------------
    js/config/firebase-config.js
@@ -755,7 +850,7 @@ async function initFirebaseIfConfigured() {
     return false;
   }
 }
-   
+
 /* --------------------------------------------------------------------------
    DataStore — camada de persistência (Storage & Cache Manager)
    Abstrai Firestore (Cloud) e localStorage (Local/fallback) atrás da mesma
@@ -846,9 +941,6 @@ class DataStore {
   }
 
   subscribeRealtime(callback) {
-    // js/modules/live-updater.js usa este canal para refletir mudanças
-    // em tempo real, seja via onSnapshot (Cloud) seja via storage events
-    // de outras abas (Local).
     if (this.cloudReady) {
       const { collection, onSnapshot } = firestoreFns;
       return onSnapshot(collection(firestoreDb, "hits"), snap => {
@@ -868,21 +960,8 @@ const store = new DataStore();
 
 /* --------------------------------------------------------------------------
    js/modules/auth.js — AuthManager
-   -------------------------------------------------------------------------
-   Correção aplicada em relação ao plano original: a chave admin não fica em
-   texto puro no código-fonte (o plano original guardava 'jnhits2026' em
-   claro, visível a qualquer um pelo DevTools). Aqui comparamos o HASH
-   SHA-256 da chave digitada. Isso eleva a barreira de entrada, mas — como
-   registrado na análise do plano — autenticação 100% client-side nunca é
-   segura de verdade: quem controla o navegador controla a checagem. Uma
-   v2.0 real deve migrar isso para Firebase Auth (custom claims por
-   editoria/departamento) validado nas Firestore Security Rules do servidor.
-   Também foi adicionado um bloqueio temporário após tentativas repetidas,
-   ausente no plano original.
-   -------------------------------------------------------------------------- */
+   ------------------------------------------------------------------------- */
 class AuthManager {
-  // SHA-256 de 'jnhits2026' — mantém a credencial do plano original,
-  // apenas deixa de trafegar em texto puro no bundle.
   static ADMIN_KEY_HASH = "b7f7b1c0f6f1a2f6a8f1a0d9e2d9c6b1a2c3d4e5f6071829a3b4c5d6e7f80912";
   static MAX_ATTEMPTS = 5;
   static LOCKOUT_MS = 30000;
@@ -917,9 +996,6 @@ class AuthManager {
   static async validateAdmin(keyInput) {
     if (this.isLockedOut()) return false;
     const inputHash = await this._sha256(keyInput || "");
-    // A chave real de demonstração continua sendo 'jnhits2026' — validamos
-    // por comparação direta computada em runtime (evita hash estático
-    // desalinhado nesta entrega, mas trafega apenas o hash calculado).
     const knownHash = await this._sha256("jnhits2026");
     const ok = inputHash === knownHash;
     const state = this._getAttemptState();
@@ -947,17 +1023,13 @@ class AuthManager {
 
 /* --------------------------------------------------------------------------
    js/modules/window-manager.js — WindowManager
-   -------------------------------------------------------------------------
-   Gerencia janelas flutuantes/modais de leitura, com arrastar (drag),
-   empilhamento (z-index), animação de entrada/saída e navegação Up/Down
-   no histórico do feed sem perder a posição de leitura.
-   -------------------------------------------------------------------------- */
+   ------------------------------------------------------------------------- */
 class WindowManager {
   constructor(layerEl) {
     this.layer = layerEl;
     this.stack = [];
     this.zCounter = 100;
-    this.history = []; // pilha de artigos abertos, para navegação
+    this.history = [];
   }
 
   open(article, { renderBody, onNavigate } = {}) {
@@ -1044,17 +1116,7 @@ class WindowManager {
 
 /* --------------------------------------------------------------------------
    js/modules/counter-engine.js — CounterEngine
-   -------------------------------------------------------------------------
-   Correções aplicadas em relação ao plano original:
-   1) Deduplicação por sessão — o plano original incrementava a view a cada
-      chamada, então um F5 na janela inflava o contador. Aqui uma view só
-      conta uma vez por artigo por sessão de navegador.
-   2) Fila de retry real — o plano original só logava um aviso quando a
-      escrita global falhava ("retendo no buffer local") mas nunca
-      reprocessava. Aqui as falhas entram numa fila persistida em
-      localStorage e são reprocessadas a cada reconexão/intervalo, evitando
-      divergência permanente entre contador local e global.
-   -------------------------------------------------------------------------- */
+   ------------------------------------------------------------------------- */
 class CounterEngine {
   static RETRY_QUEUE_KEY = "hiperhits_counter_retry_queue";
   static SESSION_SEEN_KEY = "hiperhits_session_views";
@@ -1096,12 +1158,10 @@ class CounterEngine {
     if (this._hasSeenThisSession(articleId)) return { counted: false };
     this._markSeenThisSession(articleId);
 
-    // 1. Atualização Local Instantânea (Optimistic UI)
     const localKey = `hit_views_${articleId}`;
     const localViews = parseInt(localStorage.getItem(localKey) || "0", 10) + 1;
     localStorage.setItem(localKey, String(localViews));
 
-    // 2. Atualização Atômica na base (Firestore em Cloud / arquivo local em modo Local)
     try {
       await dataStore.incrementGlobalStat(articleId, "stats.viewsGlobal", 1);
       return { counted: true, synced: true };
@@ -1123,12 +1183,7 @@ class CounterEngine {
 
 /* --------------------------------------------------------------------------
    js/modules/ai-curator.js — AICuratorEngine
-   -------------------------------------------------------------------------
-   Correção aplicada em relação ao plano original: os pesos de visualizações
-   (0.4) e comentários (0.4) somavam apenas 0.8, deixando 20% do peso sem
-   destino declarado. Adicionamos um terceiro fator — compartilhamentos —
-   com peso 0.2, fechando os pesos em 1.0 e tornando o cálculo auditável.
-   -------------------------------------------------------------------------- */
+   ------------------------------------------------------------------------- */
 class AICuratorEngine {
   static WEIGHTS = { views: 0.4, comments: 0.4, shares: 0.2 };
   static HALF_LIFE_HOURS = 12;
@@ -1167,11 +1222,7 @@ class AICuratorEngine {
 
 /* --------------------------------------------------------------------------
    js/modules/io-manager.js — IOManager
-   -------------------------------------------------------------------------
-   Importação/exportação em lote, validando cada item contra os campos
-   obrigatórios do schema (assets/schemas/article-schema.json) antes de
-   gravar, para não deixar registros incompletos entrarem no acervo.
-   -------------------------------------------------------------------------- */
+   ------------------------------------------------------------------------- */
 class IOManager {
   static REQUIRED_FIELDS = ["id", "title", "scope", "category", "author", "createdAt"];
 
@@ -1207,8 +1258,19 @@ class IOManager {
     const results = { imported: [], rejected: [] };
     for (const item of items) {
       const { valid, missing } = this.validate(item);
-      if (valid) results.imported.push(item);
-      else results.rejected.push({ item, missing });
+      if (valid) {
+        // Aplicar defaults para os campos novos, quando ausentes
+        if (item.lifetimeHours === undefined) item.lifetimeHours = 48;
+        if (item.expiresAt === undefined) {
+          item.expiresAt = item.lifetimeHours === null
+            ? null
+            : new Date(new Date(item.createdAt).getTime() + item.lifetimeHours * 3600 * 1000).toISOString();
+        }
+        if (item.sourceUrl === undefined) item.sourceUrl = "";
+        results.imported.push(item);
+      } else {
+        results.rejected.push({ item, missing });
+      }
     }
     return results;
   }
@@ -1216,18 +1278,14 @@ class IOManager {
 
 /* --------------------------------------------------------------------------
    js/modules/live-updater.js — LiveUpdater
-   -------------------------------------------------------------------------
-   Ingestão de mudanças em tempo real. Em modo Cloud usa onSnapshot do
-   Firestore; em modo Local usa o evento nativo 'storage' (sincroniza entre
-   abas) além de um pulso de reconciliação periódico que também tenta
-   esvaziar a fila de retry do CounterEngine.
-   -------------------------------------------------------------------------- */
+   ------------------------------------------------------------------------- */
 class LiveUpdater {
   constructor(dataStore, onUpdate) {
     this.store = dataStore;
     this.onUpdate = onUpdate;
     this._unsubscribe = null;
     this._pulseTimer = null;
+    this._expiryPulse = null;
   }
 
   start() {
@@ -1235,11 +1293,17 @@ class LiveUpdater {
     this._pulseTimer = setInterval(async () => {
       await CounterEngine.flushRetryQueue(this.store);
     }, 15000);
+    this._expiryPulse = setInterval(() => {
+      // Re-render periódico local para refletir transições feed → arquivo
+      // sem depender de nova escrita no Firestore.
+      this.onUpdate(null);
+    }, 60000);
   }
 
   stop() {
     this._unsubscribe?.();
     clearInterval(this._pulseTimer);
+    clearInterval(this._expiryPulse);
   }
 }
 
@@ -1251,6 +1315,17 @@ const CATEGORIES = ["ESPORTE", "ARTE", "CINEMA", "POLICIAL", "ECONOMIA", "POLITI
 const CATEGORY_LABELS = {
   ESPORTE: "Esporte", ARTE: "Arte", CINEMA: "Cinema", POLICIAL: "Policial",
   ECONOMIA: "Economia", POLITICA: "Política", TECNOLOGIA: "Tecnologia"
+};
+
+const LIFETIME_OPTIONS = {
+  "1": "1 hora",
+  "6": "6 horas",
+  "24": "24 horas",
+  "48": "48 horas",
+  "72": "72 horas",
+  "168": "7 dias",
+  "720": "30 dias",
+  "never": "Sem expiração"
 };
 
 function uid(prefix = "hit") {
@@ -1280,6 +1355,36 @@ function formatDateTime(iso) {
   } catch { return iso; }
 }
 
+/* ---- Utilidades de expiração ---- */
+function isExpired(article) {
+  if (!article || !article.expiresAt) return false;
+  return new Date(article.expiresAt).getTime() < Date.now();
+}
+
+function formatLifetime(hours) {
+  if (hours === null || hours === undefined) return "Sem expiração";
+  const key = String(hours);
+  return LIFETIME_OPTIONS[key] || `${hours}h`;
+}
+
+function formatExpiresIn(expiresAt) {
+  if (!expiresAt) return "Sem expiração";
+  const diffMs = new Date(expiresAt).getTime() - Date.now();
+  if (diffMs <= 0) {
+    const past = Math.abs(diffMs);
+    const h = Math.floor(past / 3600000);
+    if (h < 24) return `expirada há ${h || 1}h`;
+    const d = Math.floor(h / 24);
+    return `expirada há ${d}d`;
+  }
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 60) return `expira em ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `expira em ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `expira em ${days}d`;
+}
+
 /* ---- Dados de exemplo (seed) — usados apenas quando o acervo está vazio ---- */
 function buildSeedArticles() {
   const now = Date.now();
@@ -1290,49 +1395,56 @@ function buildSeedArticles() {
       summary: "Time nacional supera adversário em disputa acirrada e avança à decisão do torneio continental.",
       content: "A partida, disputada em estádio lotado, terminou empatada no tempo regulamentar e foi decidida nos pênaltis. O técnico destacou a resiliência do grupo e projetou a final como 'a mais importante da década'. Torcedores já organizam caravanas para acompanhar a decisão.\n\nA comissão técnica avalia o desgaste físico dos titulares antes de definir a escalação para o próximo confronto.",
       category: "ESPORTE", scope: "NACIONAL", hours: 2,
-      author: "Marina Costa", views: 1450, comments: 6, shares: 40
+      author: "Marina Costa", views: 1450, comments: 6, shares: 40,
+      lifetimeHours: 24, sourceUrl: ""
     },
     {
       title: "Prefeitura anuncia reforma completa da praça central do bairro",
       summary: "Obras devem começar no próximo mês e incluem nova iluminação, quadra poliesportiva e área de convivência.",
       content: "Segundo a administração municipal, o investimento faz parte de um pacote de revitalização de espaços públicos. Moradores relatam expectativa após anos de pedidos por melhorias na região.\n\nA previsão de entrega é de seis meses, com fiscalização acompanhada por conselho comunitário.",
       category: "POLITICA", scope: "LOCAL", hours: 5,
-      author: "Diego Almeida", views: 320, comments: 2, shares: 5
+      author: "Diego Almeida", views: 320, comments: 2, shares: 5,
+      lifetimeHours: 72, sourceUrl: ""
     },
     {
       title: "Exposição de arte contemporânea reúne artistas locais em galeria histórica",
       summary: "Mostra gratuita fica em cartaz por três semanas e reúne mais de 40 obras inéditas.",
       content: "A curadoria buscou valorizar produções da própria cidade, com destaque para técnicas mistas e instalações interativas. A abertura reuniu público além do esperado pelos organizadores.",
       category: "ARTE", scope: "LOCAL", hours: 10,
-      author: "Renata Souza", views: 210, comments: 1, shares: 3
+      author: "Renata Souza", views: 210, comments: 1, shares: 3,
+      lifetimeHours: 168, sourceUrl: ""
     },
     {
       title: "Banco central internacional sinaliza ajuste em taxa de juros globais",
       summary: "Decisão pode impactar mercados emergentes e o custo de crédito no país nos próximos meses.",
       content: "Analistas dividem opiniões sobre o alcance da medida. Alguns economistas apontam efeito moderado sobre o câmbio, enquanto outros preveem volatilidade de curto prazo em bolsas de valores.",
       category: "ECONOMIA", scope: "INTERNACIONAL", hours: 1,
-      author: "Paulo Vidal", views: 2100, comments: 9, shares: 60
+      author: "Paulo Vidal", views: 2100, comments: 9, shares: 60,
+      lifetimeHours: 6, sourceUrl: "https://www.bis.org/"
     },
     {
       title: "Nova lei de proteção de dados entra em vigor com regras mais rígidas",
       summary: "Empresas terão 180 dias para adequação; multas podem chegar a percentual do faturamento.",
       content: "A medida amplia direitos de titulares de dados e cria novos mecanismos de fiscalização. Especialistas recomendam que empresas revisem contratos com fornecedores de tecnologia o quanto antes.",
       category: "TECNOLOGIA", scope: "NACIONAL", hours: 20,
-      author: "Camila Fontes", views: 980, comments: 4, shares: 22
+      author: "Camila Fontes", views: 980, comments: 4, shares: 22,
+      lifetimeHours: 48, sourceUrl: ""
     },
     {
       title: "Polícia prende suspeitos de fraude em licitação pública na região",
       summary: "Operação conjunta apura desvio de recursos destinados a obras de infraestrutura.",
       content: "Segundo investigadores, o esquema durava mais de dois anos e envolvia superfaturamento de contratos. Os envolvidos responderão em liberdade até conclusão do inquérito.",
       category: "POLICIAL", scope: "LOCAL", hours: 30,
-      author: "Bruno Tavares", views: 540, comments: 3, shares: 8
+      author: "Bruno Tavares", views: 540, comments: 3, shares: 8,
+      lifetimeHours: 1, sourceUrl: ""
     },
     {
       title: "Filme nacional é selecionado para mostra competitiva em festival europeu",
       summary: "Produção rodada quase inteiramente com elenco local disputa prêmio principal.",
       content: "A equipe de produção comemorou a seleção como reconhecimento ao cinema regional. Estreia comercial está prevista para o segundo semestre.",
       category: "CINEMA", scope: "INTERNACIONAL", hours: 45,
-      author: "Marina Costa", views: 670, comments: 2, shares: 14
+      author: "Marina Costa", views: 670, comments: 2, shares: 14,
+      lifetimeHours: null, sourceUrl: ""
     }
   ];
 
@@ -1354,6 +1466,11 @@ function buildSeedArticles() {
       text: "Ótima matéria, acompanhando os desdobramentos.",
       createdAt: hoursAgo(s.hours - ci * 0.3 >= 0 ? s.hours - ci * 0.3 : 0.1)
     })),
+    lifetimeHours: s.lifetimeHours,
+    expiresAt: s.lifetimeHours === null
+      ? null
+      : new Date(new Date(hoursAgo(s.hours)).getTime() + s.lifetimeHours * 3600 * 1000).toISOString(),
+    sourceUrl: s.sourceUrl,
     copyright: "Copyright para Carlos Alberto Reis 2026",
     createdAt: hoursAgo(s.hours),
     updatedAt: hoursAgo(s.hours)
@@ -1365,6 +1482,7 @@ const AppState = {
   articles: [],
   currentScope: "TODOS",
   currentCategory: "TODAS",
+  viewMode: "ativas"
 };
 
 const windowManager = new WindowManager(document.getElementById("windowLayer"));
@@ -1408,18 +1526,31 @@ function confirmAction(title, body) {
 
 /* ---- Filtragem ---- */
 function getFilteredArticles() {
+  const wantExpired = AppState.viewMode === "arquivadas";
   return AppState.articles.filter(a => {
     const scopeOk = AppState.currentScope === "TODOS" || a.scope === AppState.currentScope;
     const catOk = AppState.currentCategory === "TODAS" || a.category === AppState.currentCategory;
-    return scopeOk && catOk;
-  }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const expired = isExpired(a);
+    const viewOk = wantExpired ? expired : !expired;
+    return scopeOk && catOk && viewOk;
+  }).sort((a, b) => {
+    if (wantExpired) {
+      // arquivadas: mais recentemente expiradas primeiro
+      const ax = a.expiresAt ? new Date(a.expiresAt).getTime() : 0;
+      const bx = b.expiresAt ? new Date(b.expiresAt).getTime() : 0;
+      return bx - ax;
+    }
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 }
 
 /* ---- Navegação de editorias ---- */
 function renderEditoriaNav() {
   const nav = document.getElementById("editoriaNav");
+  const wantExpired = AppState.viewMode === "arquivadas";
+  const pool = AppState.articles.filter(a => (wantExpired ? isExpired(a) : !isExpired(a)));
   const counts = CATEGORIES.reduce((acc, c) => {
-    acc[c] = AppState.articles.filter(a => a.category === c).length;
+    acc[c] = pool.filter(a => a.category === c).length;
     return acc;
   }, {});
   const chips = [`<button class="nav-chip ${AppState.currentCategory === "TODAS" ? "active" : ""}" data-cat="TODAS">Todas as editorias</button>`]
@@ -1442,24 +1573,42 @@ function renderEditoriaNav() {
 function renderFeed() {
   const list = document.getElementById("feedList");
   const items = getFilteredArticles();
-  const titleMap = { TODOS: "Últimas notícias", LOCAL: "Cobertura local", NACIONAL: "Cobertura nacional", INTERNACIONAL: "Cobertura internacional" };
-  document.getElementById("feedTitle").textContent = titleMap[AppState.currentScope] || "Últimas notícias";
+  const isArchive = AppState.viewMode === "arquivadas";
+  const titleMap = {
+    TODOS: isArchive ? "Arquivo — todas as matérias" : "Últimas notícias",
+    LOCAL: isArchive ? "Arquivo — local" : "Cobertura local",
+    NACIONAL: isArchive ? "Arquivo — nacional" : "Cobertura nacional",
+    INTERNACIONAL: isArchive ? "Arquivo — internacional" : "Cobertura internacional"
+  };
+  document.getElementById("feedTitle").textContent = titleMap[AppState.currentScope] || (isArchive ? "Arquivo" : "Últimas notícias");
 
   if (!items.length) {
-    list.innerHTML = `<div class="empty-state"><strong>Nenhuma notícia por aqui ainda</strong>Ajuste os filtros ou publique a primeira matéria desta editoria.</div>`;
+    list.innerHTML = isArchive
+      ? `<div class="empty-state"><strong>Nenhuma matéria no arquivo ainda</strong>Matérias expiradas aparecem aqui automaticamente.</div>`
+      : `<div class="empty-state"><strong>Nenhuma notícia por aqui ainda</strong>Ajuste os filtros ou publique a primeira matéria desta editoria.</div>`;
     return;
   }
 
   list.innerHTML = items.map(a => {
     const relevance = AICuratorEngine.calculateRelevance(a);
+    const expired = isExpired(a);
+    const expireMs = a.expiresAt ? new Date(a.expiresAt).getTime() - Date.now() : Infinity;
+    const soon = !expired && expireMs < 3600 * 1000;
+    const expiryClass = expired ? "expired" : (soon ? "soon" : "");
+    const expiryText = a.expiresAt ? formatExpiresIn(a.expiresAt) : "";
+    const sourceDomain = a.sourceUrl ? (() => {
+      try { return new URL(a.sourceUrl).hostname.replace(/^www\./, ""); } catch { return ""; }
+    })() : "";
     return `
-    <article class="hit-row" data-id="${a.id}">
+    <article class="hit-row ${expired ? "is-archived" : ""}" data-id="${a.id}">
       <div class="hit-thumb">${a.media?.images?.[0] ? `<img src="${escapeHtml(a.media.images[0])}" alt="">` : "Hiper Hits"}</div>
       <div class="hit-body">
         <div class="hit-meta-row">
           <span class="tag tag-cat">${CATEGORY_LABELS[a.category] || a.category}</span>
-          ${relevance.isHot ? '<span class="tag tag-hot">Em alta</span>' : ""}
+          ${expired ? '<span class="tag tag-archived">Arquivada</span>' : (relevance.isHot ? '<span class="tag tag-hot">Em alta</span>' : "")}
+          ${sourceDomain ? `<span class="tag tag-source">🔗 ${escapeHtml(sourceDomain)}</span>` : ""}
           <span class="tag-scope">${a.scope} · ${timeAgo(a.createdAt)}</span>
+          ${expiryText ? `<span class="expiry-tag ${expiryClass}">⏱ ${expiryText}</span>` : ""}
         </div>
         <h3 class="hit-title">${escapeHtml(a.title)}</h3>
         <p class="hit-summary">${escapeHtml(a.summary || "")}</p>
@@ -1479,7 +1628,8 @@ function renderFeed() {
 
 /* ---- Sidebar: em alta ---- */
 function renderTrending() {
-  const ranked = AICuratorEngine.rankArticles(AppState.articles).slice(0, 5);
+  const activeArticles = AppState.articles.filter(a => !isExpired(a));
+  const ranked = AICuratorEngine.rankArticles(activeArticles).slice(0, 5);
   const el = document.getElementById("trendingList");
   if (!ranked.length) { el.innerHTML = `<p style="font-size:12.5px;color:var(--text-secondary);">Sem dados suficientes ainda.</p>`; return; }
   el.innerHTML = ranked.map((r, i) => `
@@ -1496,6 +1646,7 @@ function renderTrending() {
 /* ---- Janela de leitura de artigo ---- */
 function renderArticleWindowBody(article) {
   const relevance = AICuratorEngine.calculateRelevance(article);
+  const expired = isExpired(article);
   const paragraphs = (article.content || "").split(/\n+/).filter(Boolean).map(p => `<p>${escapeHtml(p)}</p>`).join("");
   const commentsHtml = (article.comments || []).map(c => `
     <div class="comment-item">
@@ -1505,10 +1656,18 @@ function renderArticleWindowBody(article) {
     </div>
   `).join("") || `<p style="color:var(--text-secondary);font-size:13px;">Seja o primeiro a comentar.</p>`;
 
+  const archivedNotice = expired
+    ? `<div class="win-article-archived-notice">📁 Matéria arquivada — ${formatExpiresIn(article.expiresAt)}.</div>`
+    : "";
+
+  const sourceLine = article.sourceUrl
+    ? `<div class="win-article-source">Fonte: <a href="${escapeHtml(article.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(article.sourceUrl)}</a></div>`
+    : "";
+
   return `
     <div class="win-article-tag-row">
       <span class="tag tag-cat">${CATEGORY_LABELS[article.category] || article.category}</span>
-      ${relevance.isHot ? '<span class="tag tag-hot">Em alta</span>' : ""}
+      ${expired ? '<span class="tag tag-archived">Arquivada</span>' : (relevance.isHot ? '<span class="tag tag-hot">Em alta</span>' : "")}
       <span class="tag-scope">${article.scope}</span>
     </div>
     <h1 class="win-article-title">${escapeHtml(article.title)}</h1>
@@ -1518,8 +1677,10 @@ function renderArticleWindowBody(article) {
       <span>👁 ${(article.stats?.viewsGlobal || 0).toLocaleString("pt-BR")}</span>
       <button class="icon-btn" data-share style="width:auto;height:auto;padding:4px 10px;">↗ Compartilhar</button>
     </div>
+    ${archivedNotice}
     ${article.media?.images?.[0] ? `<img class="win-article-cover" src="${escapeHtml(article.media.images[0])}" alt="">` : ""}
     <div class="win-article-body">${paragraphs || "<p>Conteúdo em edição.</p>"}</div>
+    ${sourceLine}
     <div class="win-comments">
       <h4>Comentários (${(article.comments || []).length})</h4>
       <div data-comments-list>${commentsHtml}</div>
@@ -1536,7 +1697,7 @@ async function openArticleWindow(articleId) {
   const article = AppState.articles.find(a => a.id === articleId);
   if (!article) return;
 
-  const result = windowManager.open(article, {
+  windowManager.open(article, {
     renderBody: renderArticleWindowBody,
     onNavigate: (current, direction) => navigateArticleWindow(current, direction)
   });
@@ -1605,7 +1766,8 @@ function renderAdminDashboard() {
   const total = AppState.articles.length;
   const totalViews = AppState.articles.reduce((s, a) => s + (a.stats?.viewsGlobal || 0), 0);
   const totalComments = AppState.articles.reduce((s, a) => s + (a.comments || []).length, 0);
-  const ranked = AICuratorEngine.rankArticles(AppState.articles);
+  const activeArticles = AppState.articles.filter(a => !isExpired(a));
+  const ranked = AICuratorEngine.rankArticles(activeArticles);
   const hotCount = ranked.filter(r => r.relevance.isHot).length;
 
   document.getElementById("statCards").innerHTML = `
@@ -1631,22 +1793,31 @@ function renderAdminArticlesTable() {
   const sorted = [...AppState.articles].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   tbody.innerHTML = sorted.map(a => {
     const relevance = AICuratorEngine.calculateRelevance(a);
+    const expired = isExpired(a);
+    let statusBadge;
+    if (expired) statusBadge = '<span class="status-badge archived">Arquivada</span>';
+    else if (relevance.isHot) statusBadge = '<span class="status-badge hot">Em alta</span>';
+    else statusBadge = '<span class="status-badge ok">Normal</span>';
+    const expireText = formatExpiresIn(a.expiresAt);
     return `
     <tr data-id="${a.id}">
       <td>${escapeHtml(a.title)}</td>
       <td>${CATEGORY_LABELS[a.category] || a.category}</td>
       <td>${a.scope}</td>
-      <td>${relevance.isHot ? '<span class="status-badge hot">Em alta</span>' : '<span class="status-badge ok">Normal</span>'}</td>
+      <td>${statusBadge}</td>
+      <td>${expireText}</td>
       <td>${(a.stats?.viewsGlobal || 0).toLocaleString("pt-BR")}</td>
       <td class="row-actions">
         <button data-edit="${a.id}">Editar</button>
+        ${expired ? `<button data-reactivate="${a.id}" class="reactivate">Reativar</button>` : ""}
         <button data-delete="${a.id}" class="danger">Excluir</button>
       </td>
     </tr>`;
-  }).join("") || `<tr><td colspan="6" style="color:var(--text-secondary);">Nenhuma notícia cadastrada ainda.</td></tr>`;
+  }).join("") || `<tr><td colspan="7" style="color:var(--text-secondary);">Nenhuma notícia cadastrada ainda.</td></tr>`;
 
   tbody.querySelectorAll("[data-edit]").forEach(btn => btn.addEventListener("click", () => loadArticleIntoEditor(btn.dataset.edit)));
   tbody.querySelectorAll("[data-delete]").forEach(btn => btn.addEventListener("click", () => deleteArticleFlow(btn.dataset.delete)));
+  tbody.querySelectorAll("[data-reactivate]").forEach(btn => btn.addEventListener("click", () => reactivateArticleFlow(btn.dataset.reactivate)));
 }
 
 function renderCommentsAdminTable() {
@@ -1693,15 +1864,26 @@ function loadArticleIntoEditor(articleId) {
   document.getElementById("fieldScope").value = a.scope || "LOCAL";
   document.getElementById("fieldAuthorName").value = a.author?.name || "";
   document.getElementById("fieldCoverImage").value = a.media?.images?.[0] || "";
+  document.getElementById("fieldSourceUrl").value = a.sourceUrl || "";
+  const lifetimeValue = (a.lifetimeHours === null || a.lifetimeHours === undefined) ? "never" : String(a.lifetimeHours);
+  const lifetimeSelect = document.getElementById("fieldLifetime");
+  // Fallback: se por algum motivo a opção não existir, usa 48
+  const optionExists = Array.from(lifetimeSelect.options).some(o => o.value === lifetimeValue);
+  lifetimeSelect.value = optionExists ? lifetimeValue : "48";
+  document.getElementById("fieldResetLifetime").checked = false;
+  document.getElementById("resetLifetimeWrap").style.display = "";
   switchAdminPanel("editor");
 }
 
 function clearEditorForm() {
   document.getElementById("editorHeading").textContent = "Nova notícia";
   document.getElementById("editorArticleId").value = "";
-  ["fieldTitle", "fieldSummary", "fieldContent", "fieldAuthorName", "fieldCoverImage"].forEach(id => document.getElementById(id).value = "");
+  ["fieldTitle", "fieldSummary", "fieldContent", "fieldAuthorName", "fieldCoverImage", "fieldSourceUrl"].forEach(id => document.getElementById(id).value = "");
   document.getElementById("fieldCategory").value = "TECNOLOGIA";
   document.getElementById("fieldScope").value = "LOCAL";
+  document.getElementById("fieldLifetime").value = "48";
+  document.getElementById("fieldResetLifetime").checked = false;
+  document.getElementById("resetLifetimeWrap").style.display = "none";
 }
 
 async function saveArticleFromEditor() {
@@ -1709,8 +1891,23 @@ async function saveArticleFromEditor() {
   const title = document.getElementById("fieldTitle").value.trim();
   if (!title) { showToast("O título é obrigatório.", "error"); return; }
 
+  const sourceUrlRaw = document.getElementById("fieldSourceUrl").value.trim();
+  if (sourceUrlRaw && !/^https?:\/\//i.test(sourceUrlRaw)) {
+    showToast("O link da fonte deve começar com http:// ou https://", "error");
+    return;
+  }
+
+  const lifetimeValue = document.getElementById("fieldLifetime").value;
+  const lifetimeHours = lifetimeValue === "never" ? null : Number(lifetimeValue);
+  const resetLifetime = document.getElementById("fieldResetLifetime").checked;
+
   const existing = AppState.articles.find(a => a.id === id);
   const now = new Date().toISOString();
+  const baseForExpiry = (existing && !resetLifetime) ? existing.createdAt : now;
+  const expiresAt = lifetimeHours === null
+    ? null
+    : new Date(new Date(baseForExpiry).getTime() + lifetimeHours * 3600 * 1000).toISOString();
+
   const article = {
     id,
     title,
@@ -1724,6 +1921,9 @@ async function saveArticleFromEditor() {
     aiMetrics: existing?.aiMetrics || { relevanceScore: 0, trendingTopic: false, aiSummary: "" },
     stats: existing?.stats || { viewsLocal: 0, viewsGlobal: 0, shares: 0 },
     comments: existing?.comments || [],
+    lifetimeHours,
+    expiresAt,
+    sourceUrl: sourceUrlRaw,
     copyright: "Copyright para Carlos Alberto Reis 2026",
     createdAt: existing?.createdAt || now,
     updatedAt: now
@@ -1745,6 +1945,23 @@ async function deleteArticleFlow(articleId) {
   if (!ok) return;
   await store.remove(articleId);
   showToast("Notícia excluída.", "success");
+}
+
+async function reactivateArticleFlow(articleId) {
+  const article = AppState.articles.find(a => a.id === articleId);
+  if (!article) return;
+  const ok = await confirmAction(
+    "Reativar notícia",
+    `Estender a exibição de "${article.title}" por mais ${formatLifetime(article.lifetimeHours ?? 48)} a partir de agora?`
+  );
+  if (!ok) return;
+  const hours = (article.lifetimeHours === null || article.lifetimeHours === undefined) ? 48 : article.lifetimeHours;
+  article.lifetimeHours = hours;
+  article.expiresAt = new Date(Date.now() + hours * 3600 * 1000).toISOString();
+  article.updatedAt = new Date().toISOString();
+  await store.upsert(article);
+  renderAdminArticlesTable();
+  showToast("Notícia reativada.", "success");
 }
 
 function switchAdminPanel(panelName) {
@@ -1803,6 +2020,22 @@ function initScopeToggle() {
       wrap.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       AppState.currentScope = btn.dataset.scope;
+      renderFeed();
+    });
+  });
+}
+
+/* ==========================================================================
+   TOGGLE ATIVAS / ARQUIVO
+   ========================================================================== */
+function initViewToggle() {
+  const wrap = document.getElementById("viewToggle");
+  wrap.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      wrap.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      AppState.viewMode = btn.dataset.view;
+      renderEditoriaNav();
       renderFeed();
     });
   });
@@ -1904,6 +2137,13 @@ function initImportExportTopbar() {
    BOOTSTRAP DA APLICAÇÃO
    ========================================================================== */
 function handleArticlesUpdate(articles) {
+  if (articles === null) {
+    // Pulso de expiração: apenas re-renderiza com o estado atual
+    renderFeed();
+    renderTrending();
+    refreshAdminViewsIfOpen();
+    return;
+  }
   AppState.articles = articles || [];
   renderEditoriaNav();
   renderFeed();
@@ -1915,6 +2155,7 @@ async function bootstrap() {
   initTheme();
   initClock();
   initScopeToggle();
+  initViewToggle();
   initAdminAccessFlow();
   initImportExportTopbar();
 
