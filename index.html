@@ -1946,7 +1946,14 @@ function renderTrending() {
 function renderArticleWindowBody(article) {
   const relevance = AICuratorEngine.calculateRelevance(article);
   const expired = isExpired(article);
-  const paragraphs = (article.content || "").split(/\n+/).filter(Boolean).map(p => `<p>${escapeHtml(p)}</p>`).join("");
+   let raw = (article.content || "").trim().replace(/^\s*\[\s*/, "").replace(/\s*\]\s*$/, "");
+  let paragraphs;
+  if (raw.includes("<p>") || raw.includes("<h3>") || raw.includes("</p>")) {
+    let c = raw.replace(/^(\s*<\/p>\s*)+/i, "").replace(/(\s*<p>\s*)+$/i, "").trim();
+    paragraphs = c;
+  } else {
+    paragraphs = raw.split(/\n+/).filter(Boolean).map(p => `<p>${escapeHtml(p)}</p>`).join("");
+  }
   const commentsHtml = (article.comments || []).map(c => `
     <div class="comment-item">
       <span class="c-name">${escapeHtml(c.userName)}</span>
