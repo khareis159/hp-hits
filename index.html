@@ -885,7 +885,7 @@ body {
             <tbody></tbody>
           </table>
         </div>
-      </section>
+      </div>
 
       <!-- Editor de notícia -->
       <section class="admin-panel" id="panel-editor">
@@ -962,7 +962,7 @@ body {
         </div>
 
       <!-- IA - Gerador de Prompt Mestre v2.5.1 -->
-      <section class="admin-panel" id="panel-ia" style="display:block; margin-top:20px;">
+     <div id="panel-ia" style="display:block; margin-top:20px; padding:16px; border-top:1px solid var(--border);">
         <div class="ia-card" id="iaGeneratorCard">
           <h4>🤖 IA - Gerador de Prompt Mestre</h4>
           <div class="ia-row">
@@ -1490,7 +1490,15 @@ class IOManager {
     }
     const items = Array.isArray(parsed) ? parsed : (parsed.items || []);
     const results = { imported: [], rejected: [] };
-    for (const item of items) {
+    for (let raw of items) {
+      const item = { ...raw };
+      if (!item.id) item.id = 'hit_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+      if (!item.slug && item.title) item.slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60);
+      if (!item.author) item.author = { name: "Redação IA", id: "author_ia", avatar: "", bio: "" };
+      if (typeof item.author === 'string') item.author = { name: item.author, id: "author_ia", avatar: "", bio: "" };
+      if (!item.createdAt) item.createdAt = new Date().toISOString();
+      if (!item.summary) item.summary = (item.content||"").slice(0,180);
+      if (!item.content) item.content = item.summary||"";
       const { valid, missing } = this.validate(item);
       if (valid) {
         // Aplicar defaults para os campos novos, quando ausentes
@@ -2375,20 +2383,22 @@ function initAdminAccessFlow() {
 
   document.getElementById("saveArticleBtn").addEventListener("click", saveArticleFromEditor);
   document.getElementById("clearEditorBtn").addEventListener("click", clearEditorForm);
-  document.getElementById("adminExportBtn").addEventListener("click", () => IOManager.exportAll(AppState.articles));
-  document.getElementById("adminImportBtn").addEventListener("click", () => triggerImportFlow());
+  document.getElementById("adminExportBtn")?.addEventListener("click", () => IOManager.exportAll(AppState.articles));
+  document.getElementById("adminImportBtn")?.addEventListener("click", () => triggerImportFlow());
 }
 
 /* ==========================================================================
    IMPORTAR / EXPORTAR (barra superior)
    ========================================================================== */
 function triggerImportFlow() {
-  document.getElementById("importFileInput").click();
+  const inp = document.getElementById("importFileInput");
+  if (!inp) { showToast("Input de import não encontrado", "error"); return; }
+  inp.click();
 }
 
 function initImportExportTopbar() {
-  document.getElementById("exportBtn").addEventListener("click", () => IOManager.exportAll(AppState.articles));
-  document.getElementById("importBtn").addEventListener("click", () => triggerImportFlow());
+  document.getElementById("exportBtn")?.addEventListener("click", () => IOManager.exportAll(AppState.articles));
+  document.getElementById("importBtn")?.addEventListener("click", () => triggerImportFlow());
 
   document.getElementById("importFileInput").addEventListener("change", async (e) => {
     const file = e.target.files?.[0];
