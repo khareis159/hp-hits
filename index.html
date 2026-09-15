@@ -719,7 +719,10 @@ body {
   box-sizing:border-box;
 }
 .ia-card h4{margin:0 0 8px 0;font-size:14px;}
-.ia-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.ia-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;width:100%;}
+.ia-row select,.ia-row input{flex:1;min-width:140px;padding:10px;border-radius:8px;border:1px solid var(--border-strong);font-size:14px;}
+.ia-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;width:100%;}
+.ia-actions .btn{flex:1;min-width:120px;justify-content:center;}
 .ia-row select,.ia-row input{flex:1;min-width:120px;padding:8px;border-radius:6px;border:1px solid var(--border-strong)}
 .ia-prompt-box{
   width:100%;
@@ -986,7 +989,7 @@ body {
         </div>
 
       <!-- IA - Gerador de Prompt Mestre v2.5.1 -->
-     <div id="panel-ia" style="display:block; margin-top:20px; padding:16px; border-top:1px solid var(--border);">
+     <div id="panel-ia" style="display:block; margin-top:40px; width:100%; max-width:900px; padding:0; border-top:2px solid #c0392b; padding-top:20px;">
         <div class="ia-card" id="iaGeneratorCard">
           <h4>🤖 IA - Gerador de Prompt Mestre</h4>
           <div class="ia-row">
