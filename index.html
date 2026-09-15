@@ -706,6 +706,12 @@ body {
 .cover-preview{margin-top:8px;width:100%;max-height:180px;border-radius:6px;border:1px dashed var(--border-strong);background:var(--paper);display:none;object-fit:cover}
 .cover-preview.show{display:block}
 .cover-auto-hint{font-size:11.5px;color:var(--text-secondary);margin-top:6px}
+.ia-card{border:1.5px solid var(--accent);border-radius:10px;padding:14px;margin-top:18px;background:linear-gradient(135deg,var(--paper) 0%,var(--bg-secondary) 100%)}
+.ia-card h4{margin:0 0 10px 0;font-size:14px}
+.ia-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.ia-row select,.ia-row input{flex:1;min-width:120px;padding:8px;border-radius:6px;border:1px solid var(--border-strong)}
+.ia-prompt-box{width:100%;min-height:160px;font-family:monospace;font-size:11.5px;padding:10px;border-radius:6px;border:1px solid var(--border-strong);background:var(--bg-primary);white-space:pre-wrap}
+.ia-actions{display:flex;gap:8px;margin-top:8px}
 </style>
 <script type="importmap">
 {
@@ -954,7 +960,34 @@ body {
           <button class="btn" id="saveArticleBtn">Salvar notícia</button>
           <button class="btn btn-ghost" id="clearEditorBtn">Limpar formulário</button>
         </div>
-      </section>
+
+      <!-- IA - Gerador de Prompt Mestre v2.5.1 -->
+      <section class="admin-panel" id="panel-ia" style="display:block; margin-top:20px;">
+        <div class="ia-card" id="iaGeneratorCard">
+          <h4>🤖 IA - Gerador de Prompt Mestre</h4>
+          <div class="ia-row">
+            <select id="iaCategory">
+              <option value="TECNOLOGIA">TECNOLOGIA</option>
+              <option value="ESPORTE">ESPORTE</option>
+              <option value="POLITICA">POLITICA</option>
+              <option value="ECONOMIA">ECONOMIA</option>
+              <option value="POLICIAL">POLICIAL</option>
+              <option value="ARTE">ARTE</option>
+              <option value="CINEMA">CINEMA</option>
+            </select>
+            <select id="iaQty"><option value="2">2 notícias</option><option value="3">3 notícias</option><option value="5" selected>5 notícias</option><option value="7">7 notícias</option><option value="10">10 notícias</option></select>
+            <select id="iaScope"><option value="NACIONAL">NACIONAL</option><option value="LOCAL">LOCAL</option><option value="INTERNACIONAL">INTERNACIONAL</option></select>
+          </div>
+          <div class="ia-row"><input id="iaTopic" type="text" placeholder="Assunto focado (opcional) ex: Campeonato Brasileiro"></div>
+          <div class="ia-actions">
+            <button type="button" id="btnGeneratePrompt" class="btn btn-primary">Gerar Prompt Mestre</button>
+            <button type="button" id="btnCopyPrompt" class="btn">Copiar Prompt</button>
+          </div>
+          <textarea id="iaPromptBox" class="ia-prompt-box" readonly placeholder="Clique em Gerar Prompt Mestre..."></textarea>
+          <div class="paste-hint">Cole o prompt no ChatGPT / Gemini, copie o JSON que voltar e use em Importar JSON.</div>
+        </div>
+ 
+     </section>
 
       <!-- Comentários -->
       <section class="admin-panel" id="panel-comments">
@@ -2202,6 +2235,30 @@ function applyTheme(theme) {
   }
 }
 function initCoverPreview(){const i=document.getElementById("fieldCoverImage");const c=document.getElementById("fieldCategory");if(!i)return;let p=document.getElementById("coverPreviewImg");if(!p){p=document.createElement("img");p.id="coverPreviewImg";p.className="cover-preview";i.insertAdjacentElement('afterend',p);const hint=document.createElement("div");hint.className="paste-hint";hint.textContent="Dica: de um Ctrl+V aqui com um print copiado — funciona!";p.insertAdjacentElement('afterend',hint);}const u=()=>{const v=i.value.trim();if(!v){p.src=getAutoCoverForCategory(c?c.value:"TECNOLOGIA");}else if(/^data:image\//i.test(v)||/^https?:\/\//i.test(v)){p.src=v;}else{p.src=getAutoCoverForCategory(c?c.value:"TECNOLOGIA");}p.classList.add("show");};i.addEventListener("input",u);if(c)c.addEventListener("change",u);i.addEventListener("paste",(e)=>{const items=e.clipboardData&&e.clipboardData.items;if(!items)return;for(let k=0;k<items.length;k++){const it=items[k];if(it.type.indexOf("image")!== -1){const file=it.getAsFile();if(!file)continue;e.preventDefault();const reader=new FileReader();reader.onload=(ev)=>{i.value=ev.target.result;u();showToast("Print colado! Pronto pra salvar.","success");};reader.readAsDataURL(file);break;}}});u();}
+
+function initIAPromptGenerator(){
+  const cat=document.getElementById("iaCategory");
+  const qty=document.getElementById("iaQty");
+  const scope=document.getElementById("iaScope");
+  const topic=document.getElementById("iaTopic");
+  const box=document.getElementById("iaPromptBox");
+  const btnGen=document.getElementById("btnGeneratePrompt");
+  const btnCopy=document.getElementById("btnCopyPrompt");
+  if(!btnGen) return;
+  const coverMap={ESPORTE:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&q=80&fit=crop",ARTE:"https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&q=80&fit=crop",CINEMA:"https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80&fit=crop",POLICIAL:"https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=800&q=80&fit=crop",ECONOMIA:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80&fit=crop",POLITICA:"https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&q=80&fit=crop",TECNOLOGIA:"https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80&fit=crop"};
+  btnGen.addEventListener("click",()=>{
+    const c=cat.value;const q=qty.value;const s=scope.value;const t=topic.value.trim();
+    const today=new Date().toLocaleDateString("pt-BR");
+    const prompt=`Você é REDATOR-CHEFE do portal HiperHits, data ${today}. Gere EXATAMENTE ${q} notícias REAIS, ATUAIS de hoje (${today}) sobre ${c}, escopo ${s}${t?`, FOCO: ${t}`:""}. SAÍDA: APENAS array JSON puro, sem markdown. Cada objeto: {"title":"90 chars máx","summary":"160-200 chars","content":"<p>Lead</p><h3>Sub</h3><p>450+ palavras, só <p> e <h3></p>","category":"${c}","scope":"${s}","lifetimeHours":48,"media":{"images":["URL Unsplash real sobre o tema, se não achar use ${coverMap[c]||coverMap.TECNOLOGIA}"]},"sourceUrl":""}. Nunca deixe media vazio. Estilo imparcial HiperHits. RETORNE SÓ JSON.`;
+    box.value=prompt;
+    showToast("Prompt Mestre v2.5.1 gerado!","success");
+  });
+  btnCopy.addEventListener("click",async()=>{
+    if(!box.value){showToast("Gere primeiro","warning");return;}
+    try{await navigator.clipboard.writeText(box.value);showToast("Copiado! Cole no ChatGPT.","success");}catch(e){box.select();document.execCommand("copy");}
+  });
+}
+
 function initTheme() {
   const saved = localStorage.getItem("hiperhits_theme") ||
     (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
@@ -2389,6 +2446,7 @@ async function bootstrap() {
 
   await CounterEngine.flushRetryQueue(store);
   initCoverPreview();
+  initIAPromptGenerator();
   window.addEventListener("beforeunload", () => liveUpdater.stop());
 }
 
