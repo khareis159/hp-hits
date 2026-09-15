@@ -985,6 +985,16 @@ body {
           </div>
           <textarea id="iaPromptBox" class="ia-prompt-box" readonly placeholder="Clique em Gerar Prompt Mestre..."></textarea>
           <div class="paste-hint">Cole o prompt no ChatGPT / Gemini, copie o JSON que voltar e use em Importar JSON.</div>
+
+          <div style="margin-top:12px; border-top:1px dashed var(--border); padding-top:12px;">
+            <label style="font-size:12px; font-weight:bold;">Ou cole o JSON sujo/limpo da IA aqui e importe direto:</label>
+            <textarea id="iaJsonPaste" class="ia-prompt-box" style="min-height:120px; margin-top:6px;" placeholder="Cole aqui o JSON que veio do ChatGPT (pode vir com [ 1, { 1...)"></textarea>
+            <div class="ia-actions">
+              <button type="button" id="btnImportPasted" class="btn btn-primary">📥 Importar JSON Colado (limpa sujo)</button>
+              <button type="button" id="btnClearPasted" class="btn">Limpar</button>
+//            </div>
+          </div>
+
         </div>
  
      </section>
@@ -2265,6 +2275,56 @@ function initIAPromptGenerator(){
     if(!box.value){showToast("Gere primeiro","warning");return;}
     try{await navigator.clipboard.writeText(box.value);showToast("Copiado! Cole no ChatGPT.","success");}catch(e){box.select();document.execCommand("copy");}
   });
+
+  const pasteBox=document.getElementById("iaJsonPaste");
+  const btnImportPasted=document.getElementById("btnImportPasted");
+  const btnClearPasted=document.getElementById("btnClearPasted");
+  if(btnImportPasted){
+    btnClearPasted?.addEventListener("click",()=>{pasteBox.value="";});
+    btnImportPasted.addEventListener("click", async()=>{
+      let raw = pasteBox.value.trim();
+      if(!raw){ showToast("Cole o JSON da IA primeiro","warning"); return; }
+      try{
+        // LIMPEZA DO JSON SUJO: remove numeração [ 1, { 1, }, 2 etc
+        raw = raw.replace(/^\s*Pergunta respondida.*$/gm, "");
+        raw = raw.replace(/^\s*\[\s*\d+\s*/m, "[");
+        raw = raw.replace(/\{\s*\d+\s*\n\s*"/g, '{"');
+        raw = raw.replace(/"\s*\}\s*,\s*\d+\s*\n/g, '"},');
+        raw = raw.replace(/"\s*\}\s*,\s*\d+\s*\{\s*\d+/g, '"},{');
+        raw = raw.replace(/^\s*\d+\s*$/gm, "");
+        // tenta extrair só o array [...]
+        const firstBracket = raw.indexOf('[');
+        const lastBracket = raw.lastIndexOf(']');
+        if(firstBracket!==-1 && lastBracket!==-1) raw = raw.substring(firstBracket, lastBracket+1);
+
+        let parsed = JSON.parse(raw);
+        const items = Array.isArray(parsed)? parsed : (parsed.items || []);
+        let ok=0, fail=0;
+        for(let r of items){
+          let item = {...r};
+          if(!item.title ||!item.content) { fail++; continue; }
+          if(!item.id) item.id = 'hit_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+          if(!item.slug && item.title) item.slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,60);
+          if(!item.author) item.author = { name: "Redação IA", id: "author_ia", avatar:"", bio:"" };
+          if(typeof item.author==='string') item.author = { name: item.author, id:"author_ia", avatar:"", bio:"" };
+          if(!item.createdAt) item.createdAt = new Date().toISOString();
+          if(!item.summary) item.summary = (item.content||"").slice(0,180);
+          if(!item.media) item.media = { images: [] };
+          if(!item.media.images?.[0]) item.media.images = [getAutoCoverForCategory(item.category||'TECNOLOGIA')];
+          if(item.lifetimeHours===undefined) item.lifetimeHours=48;
+          if(item.expiresAt===undefined) item.expiresAt = item.lifetimeHours===null?null:new Date(new Date(item.createdAt).getTime()+item.lifetimeHours*3600*1000).toISOString();
+          await store.upsert(item);
+          ok++;
+        }
+        showToast(`${ok} notícia(s) importada(s) direto da IA! ${fail?`, ${fail} falharam`:''}`, ok?"success":"error");
+        if(ok) { pasteBox.value=""; renderFeed(); refreshAdminViewsIfOpen(); }
+      }catch(e){
+        console.error(e);
+        showToast("JSON ainda inválido: "+e.message+" - tente usar o limpo","error");
+      }
+    });
+  }
+
 }
 
 function initTheme() {
