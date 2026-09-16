@@ -754,6 +754,24 @@ body {
   box-sizing:border-box;
 }
 .ia-actions{display:flex;gap:8px;margin-top:8px}
+
+/* HUD Contador - HPHits - Invisible-Zero-Error */
+.apex-counter-hub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-align: center;
+    color: #f59e0b;
+    background: rgba(0,0,0,0.4);
+    padding: 6px 14px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.1);
+    line-height: 1.3;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
+.apex-counter-hub b { color: #fff; }
+
 </style>
 <script type="importmap">
 {
@@ -769,6 +787,11 @@ body {
 <header class="masthead">
   <div class="masthead-top">
     <span class="live-pill"><span class="live-dot"></span> AO VIVO — curadoria por IA ativa</span>
+
+<div class="apex-counter-hub" title="Contador resiliente - sem API externa">
+    🌐 LEITORES: <b id="gCount">...</b> | 👤 VOCÊ: <b id="lCount">0</b>
+</div>
+
     <span class="clock" id="clockDisplay">--:--:--</span>
   </div>
   <div class="masthead-main">
@@ -2569,6 +2592,31 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+// Contador Invisible-Zero-Error - HPHits - NÃO interfere no Classificados
+function initApexCounter(config) {
+    const { storageKey, baseValue, growthRate, startDate } = config;
+    let local = parseInt(localStorage.getItem(storageKey)) || 0;
+    local++;
+    localStorage.setItem(storageKey, local);
+    const lElem = document.getElementById('lCount');
+    if (lElem) lElem.textContent = local;
+    const launch = new Date(startDate).getTime();
+    const now = new Date().getTime();
+    const daysPassed = Math.floor((now - launch) / (1000 * 60 * 60 * 24));
+    const safeDays = daysPassed > 0 ? daysPassed : 0;
+    const simulatedGlobal = baseValue + (safeDays * growthRate) + local;
+    const gElem = document.getElementById('gCount');
+    if (gElem) gElem.textContent = simulatedGlobal.toLocaleString('pt-BR');
+}
+// DNA do HPHits - CHAVE DIFERENTE DO CLASSIFICADOS
+initApexCounter({
+    storageKey: 'hphits_global_v1', 
+    baseValue: 18450,                         
+    growthRate: 23,                          
+    startDate: '2026-09-01'                  
+});
+
 </script>
 </body>
 </html>
