@@ -964,7 +964,9 @@ body {
       <button data-panel="editor">Nova / Editar</button>
       <button data-panel="comments">Comentários</button>
       <button data-panel="data">Importar / Exportar</button>
-    </nav>
+      <button data-panel="colunas">🔔 Colunas & Letreiro</button> 
+      <button data-panel="ticker">🔔 Letreiro & Boas-Vindas</button> 
+  </nav>
 
     <div class="admin-content">
       <!-- Dashboard -->
@@ -989,9 +991,28 @@ body {
             <tbody></tbody>
           </table>
         </div>
-  </section>   <!-- CERTO AGORA -->
+    </section>   <!-- CERTO AGORA -->
+  <!-- PAINEL NOVO AQUI ↓ -->
+  <section class="admin-panel" id="panel-ticker">
+    <h2>🔔 Letreiro Marquee + Card de Boas-Vindas</h2>
+    <div class="editor-grid">
+      <div class="span-2">
+        <label>Mensagens do Letreiro (separe por | )</label>
+        <textarea id="tickerInput" rows="3" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border-strong);">🌐 Apoie o jornalismo local - PIX: (61) 99948-7649 | ⭐ Editorial do Dia: nova crônica toda manhã às 6h em COLUNAS | 📢 Anuncie no HiperHits | 🔭 Ufologia, Astrologia e Ciência agora em COLUNAS & Mistérios</textarea>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:6px;">Ex: Use | para separar. Expira sozinho? Não, fica até você trocar. Salvo no navegador.</div>
+      </div>
+      <div class="span-2">
+        <button class="btn" id="saveTickerBtn">💾 Salvar Letreiro</button>
+        <button class="btn btn-ghost" id="clearTickerBtn">Limpar</button>
+      </div>
+      <div class="span-2" style="border-top:1px dashed var(--border);padding-top:14px;margin-top:10px;">
+        <h4>⭐ Editorial do Dia (Card 24h)</h4>
+        <p style="font-size:12.5px;color:var(--text-secondary);">No formulário de Nova Matéria, marque: <b>Categoria = COLUNAS + Pinado + Editorial do Dia</b>. Ela sobe automaticamente pro card e some em 24h.</p>
+      </div>
+    </div>
+  </section>
 
-      <!-- Editor de notícia -->
+       <!-- Editor de notícia -->
       <section class="admin-panel" id="panel-editor">
         <h2 id="editorHeading">Nova notícia</h2>
         <input type="hidden" id="editorArticleId">
@@ -1018,9 +1039,14 @@ body {
               <option value="ECONOMIA">Economia</option>
               <option value="POLITICA">Política</option>
               <option value="TECNOLOGIA">Tecnologia</option>
+              <option value="COLUNAS">Colunas & Mistérios</option>
             </select>
           </div>
-          <div class="field">
+ 
+          <label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;"><input type="checkbox" id="aIsWelcome"> ⭐ Marcar como Editorial do Dia (Card 24h - COLUNAS)</label>
+          <label style="display:flex;gap:8px;align-items:center;margin-top:4px;font-size:13px;"><input type="checkbox" id="aIsPinned"> 📌 Pinado no topo</label>  
+
+       <div class="field">
             <label for="fieldScope">Abrangência</label>
             <select id="fieldScope">
               <option value="LOCAL">Local</option>
@@ -2296,8 +2322,17 @@ async function saveArticleFromEditor() {
     sourceUrl: sourceUrlRaw,
     copyright: "Copyright para Carlos Alberto Reis 2026",
     createdAt: existing?.createdAt || now,
-    updatedAt: now
+    updatedAt: now,
+
+// ADD 7 — flags de Editorial do Dia / Pinado ↓
+    isWelcome: document.getElementById("aIsWelcome")?.checked || false,
+    isPinned: document.getElementById("aIsPinned")?.checked || false
   };
+
+  if (article.isWelcome) { article.category = 'COLUNAS'; article.lifetimeHours = 24;
+    article.expiresAt = new Date(Date.now() + 24 * 3600 * 1000).toISOString();
+
+  }
 
   const { valid, missing } = IOManager.validate(article);
   if (!valid) { showToast("Campos obrigatórios ausentes: " + missing.join(", "), "error"); return; }
@@ -2658,28 +2693,52 @@ initApexCounter({
     startDate: '2026-09-01'                  
 });
 
-// ADD 6 - Ticker + Welcome Card 24h - Plug & Play
-const TICKER_MESSAGES = [
-  "🌐 Apoie o jornalismo local - PIX: (61) 99948-7649",
-  "⭐ Editorial do Dia: nova crônica toda manhã às 6h em COLUNAS",
-  "📢 Anuncie no HiperHits - fale com a redação",
-  "🔭 Ufologia, Astrologia e Ciência agora em COLUNAS & Mistérios"
-];
+// ADD 7 - Ticker editável via localStorage
+function getTickerMessages() {
+  const saved = localStorage.getItem('hphits_ticker_v1');
+  if (saved) return saved.split('|').map(s=>s.trim()).filter(Boolean);
+  return [
+    "🌐 Apoie o jornalismo local - PIX: (61) 99948-7649",
+    "⭐ Editorial do Dia: nova crônica toda manhã às 6h em COLUNAS",
+    "📢 Anuncie no HiperHits - fale com a redação",
+    "🔭 Ufologia, Astrologia e Ciência agora em COLUNAS & Mistérios"
+  ];
+}
+let TICKER_MESSAGES = getTickerMessages();
 
 function initTicker() {
   const track = document.getElementById('tickerTrack');
   if (!track) return;
   const text = TICKER_MESSAGES.join(" • ") + " • ";
-  track.textContent = text + text; // duplica pra loop sem buraco
+  track.textContent = text + text;
 }
+function saveTickerMessages() {
+  const input = document.getElementById('tickerInput');
+  if (!input) return;
+  localStorage.setItem('hphits_ticker_v1', input.value);
+  TICKER_MESSAGES = getTickerMessages();
+  initTicker();
+  alert('Letreiro salvo! Já está rodando.');
+}
+
+// Liga botões do painel
+setTimeout(() => {
+  const inp = document.getElementById('tickerInput');
+  if (inp) inp.value = (localStorage.getItem('hphits_ticker_v1') || TICKER_MESSAGES.join(' | '));
+  document.getElementById('saveTickerBtn')?.addEventListener('click', saveTickerMessages);
+  document.getElementById('clearTickerBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('hphits_ticker_v1');
+    location.reload();
+  });
+}, 1000);
+
+// Re-renderiza welcome quando feed renderiza
 function renderWelcomeCard() {
   const mount = document.getElementById('welcomeCardMount');
   if (!mount) return;
-  // Busca matéria com tag especial isWelcome ou categoria COLUNAS pinada nas últimas 24h
-  const now = Date.now();
   const welcome = AppState.articles
-   .filter(a =>!isExpired(a) && (a.isWelcome || (a.category === 'COLUNAS' && a.isPinned)))
-   .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    .filter(a => !isExpired(a) && (a.isWelcome || (a.category === 'COLUNAS' && a.isPinned)))
+    .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
 
   if (!welcome) {
     mount.innerHTML = `<div class="welcome-card"><h2>👋 Bem-vindo ao HiperHits 2026</h2><div class="welcome-meta">Editorial diário às 6h - Chefe de Redação: Gastão Visgueira</div><p style="font-size:13.5px;line-height:1.6;margin:0;">Cobertura independente do Entorno do DF, com crônicas, ciência e mistérios. Toda manhã uma reflexão nova aqui neste espaço.</p></div>`;
@@ -2694,16 +2753,13 @@ function renderWelcomeCard() {
   mount.querySelector('.welcome-card')?.addEventListener('click', () => openArticleWindow(welcome.id));
 }
 
-// Inicializa ADD 6
 initTicker();
 setTimeout(renderWelcomeCard, 500);
-// Re-renderiza welcome quando feed renderiza
 const _oldRenderFeed = window.renderFeed;
 window.renderFeed = function() {
   if (typeof _oldRenderFeed === 'function') _oldRenderFeed();
   renderWelcomeCard();
 };
-
 </script>
 </body>
 </html>
