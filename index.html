@@ -778,21 +778,26 @@ body {
   color: #F4F0E6;
   font-size: 11.5px;
   letter-spacing: 0.04em;
-  height: 26px;
+  height: 28px;
   overflow: hidden;
   white-space: nowrap;
-  display: flex;
-  align-items: center;
+  display: block;
+  line-height: 28px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  width: 100%;
 }
 .ticker-track {
   display: inline-block;
-  padding-left: 100%;
-  animation: ticker-scroll 45s linear infinite;
+  white-space: nowrap;
+  will-change: transform;
+  animation: ticker-scroll 60s linear infinite;
+  padding-left: 0;
+  transform: translate3d(0,0,0);
 }
 @keyframes ticker-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+  0% { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-50%,0,0); }
 }
 .welcome-card {
   background: linear-gradient(135deg, #FFF8E1 0%, #FFFFFF 100%);
@@ -802,10 +807,17 @@ body {
   margin-bottom: 16px;
   box-shadow: 0 4px 12px rgba(184,145,43,0.15);
 }
-[data-theme="dark"].welcome-card {
+[data-theme="dark"].welcome-card h2 { font-family: var(--font-serif); font-size: 19px; margin: 0 0 6px; color: #3D2B00; }
+.welcome-card .welcome-meta { font-size: 11px; color: #8C6B20; margin-bottom: 8px; }
+.welcome-card p { font-size: 13.5px; line-height: 1.6; margin: 0; color: #5A4210; }
+
+[data-theme="dark"] .welcome-card {
   background: linear-gradient(135deg, #2A2410 0%, #1C2027 100%);
   border-color: #D8B44C;
 }
+[data-theme="dark"] .welcome-card h2 { color: #FFE8A0; }
+[data-theme="dark"] .welcome-card .welcome-meta { color: #D8B44C; }
+[data-theme="dark"] .welcome-card p { color: #F4E0B0; }
 .welcome-card h2 { font-family: var(--font-serif); font-size: 19px; margin: 0 0 6px; }
 .welcome-card.welcome-meta { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
 
@@ -2709,7 +2721,12 @@ function initTicker() {
   const track = document.getElementById('tickerTrack');
   if (!track) return;
   const text = TICKER_MESSAGES.join(" • ") + " • ";
-  track.textContent = text + text;
+  // triplica pro PC largo não ficar vazio
+  track.textContent = text + text + text;
+  // reinicia animação (fix pra Chrome PC que pausa)
+  track.style.animation = 'none';
+  track.offsetHeight;
+  track.style.animation = 'ticker-scroll 60s linear infinite';
 }
 function saveTickerMessages() {
   const input = document.getElementById('tickerInput');
