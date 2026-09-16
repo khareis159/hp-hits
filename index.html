@@ -790,9 +790,9 @@ body {
 .ticker-track {
   display: inline-block;
   white-space: nowrap;
+  width: max-content;
   will-change: transform;
   animation: ticker-scroll 50s linear infinite;
-  padding-left: 0;
   transform: translate3d(0,0,0);
 }
 @keyframes ticker-scroll {
@@ -2721,12 +2721,10 @@ function initTicker() {
   const track = document.getElementById('tickerTrack');
   if (!track) return;
   const text = TICKER_MESSAGES.join(" • ") + " • ";
-  // triplica pro PC largo não ficar vazio
-  track.textContent = text + text + text;
-  // reinicia animação (fix pra Chrome PC que pausa)
+  track.textContent = text + text;
   track.style.animation = 'none';
-  track.offsetHeight;
-  track.style.animation = 'ticker-scroll 60s linear infinite';
+  void track.offsetWidth;
+  track.style.animation = 'ticker-scroll 40s linear infinite';
 }
 function saveTickerMessages() {
   const input = document.getElementById('tickerInput');
