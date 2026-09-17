@@ -807,8 +807,8 @@ body {
   transform: translate3d(0,0,0);
 }
 @keyframes ticker-scroll {
-  0% { transform: translate3d(0,0,0); }
-  100% { transform: translate3d(-50%,0,0); }
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-180%); }
 }
 .welcome-card {
   background: linear-gradient(135deg, #FFF8E1 0%, #FFFFFF 100%);
@@ -1019,7 +1019,7 @@ body {
     <div class="editor-grid">
       <div class="span-2">
         <label>Mensagens do Letreiro (separe por | )</label>
-        <textarea id="tickerInput" rows="3" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border-strong);">🌐 Apoie o jornalismo Independente - PIX: (61) 99948-7649 | ⭐ Editorial do Dia: nova crônica toda manhã às 6h em COLUNAS | 📢 Anuncie no HiperHits | 🔭 Ufologia, Astrologia e Ciência agora em COLUNAS & Mistérios</textarea>
+        <textarea id="tickerInput" rows="3" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border-strong);">🌐 Apoie o jornalismo local - PIX: (61) 99948-7649 | ⭐ Editorial do Dia: nova crônica toda manhã às 6h em COLUNAS | 📢 Anuncie no HiperHits | 🔭 Ufologia, Astrologia e Ciência agora em COLUNAS & Mistérios</textarea>
         <div style="font-size:11px;color:var(--text-secondary);margin-top:6px;">Ex: Use | para separar. Expira sozinho? Não, fica até você trocar. Salvo no navegador.</div>
       </div>
       <div class="span-2">
@@ -2720,7 +2720,7 @@ function getTickerMessages() {
   const saved = localStorage.getItem('hphits_ticker_v1');
   if (saved) return saved.split('|').map(s=>s.trim()).filter(Boolean);
   return [
-    "🌐 Apoie o jornalismo Independente - PIX: (61) 99948-7649",
+    "🌐 Apoie o jornalismo local - PIX: (61) 99948-7649",
     "⭐ Editorial do Dia: nova crônica toda manhã às 6h em COLUNAS",
     "📢 Anuncie no HiperHits - fale com a redação",
     "🔭 Ufologia, Astrologia e Ciência agora em COLUNAS & Mistérios"
@@ -2731,16 +2731,11 @@ let TICKER_MESSAGES = getTickerMessages();
 function initTicker() {
   const track = document.getElementById('tickerTrack');
   if (!track) return;
-  const base = TICKER_MESSAGES.join(" • ") + " • ";
-  let full = base + base;
-  const viewportW = Math.max(window.innerWidth || 0, 800);
-  while (full.length < viewportW * 2) {
-    full += base;
-  }
-  track.textContent = full;
+  const text = TICKER_MESSAGES.join(" • ") + " • ";
+  track.textContent = text;
   track.style.animation = 'none';
   void track.offsetWidth;
-  track.style.animation = 'ticker-scroll 50s linear infinite';
+  track.style.animation = 'ticker-scroll 60s linear infinite';
 }
 function saveTickerMessages() {
   const input = document.getElementById('tickerInput');
