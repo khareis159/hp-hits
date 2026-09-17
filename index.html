@@ -1019,7 +1019,7 @@ body {
     <div class="editor-grid">
       <div class="span-2">
         <label>Mensagens do Letreiro (separe por | )</label>
-        <textarea id="tickerInput" rows="3" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border-strong);">🌐 Apoie o jornalismo local - PIX: (61) 99948-7649 | ⭐ Editorial do Dia: nova crônica toda manhã às 6h em COLUNAS | 📢 Anuncie no HiperHits | 🔭 Ufologia, Astrologia e Ciência agora em COLUNAS & Mistérios</textarea>
+        <textarea id="tickerInput" rows="3" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border-strong);">🌐 Apoie o jornalismo Independente - PIX: (61) 99948-7649 | ⭐ Editorial do Dia: nova crônica toda manhã às 6h em COLUNAS | 📢 Anuncie no HiperHits | 🔭 Ufologia, Astrologia e Ciência agora em COLUNAS & Mistérios</textarea>
         <div style="font-size:11px;color:var(--text-secondary);margin-top:6px;">Ex: Use | para separar. Expira sozinho? Não, fica até você trocar. Salvo no navegador.</div>
       </div>
       <div class="span-2">
@@ -2720,7 +2720,7 @@ function getTickerMessages() {
   const saved = localStorage.getItem('hphits_ticker_v1');
   if (saved) return saved.split('|').map(s=>s.trim()).filter(Boolean);
   return [
-    "🌐 Apoie o jornalismo local - PIX: (61) 99948-7649",
+    "🌐 Apoie o jornalismo Independente - PIX: (61) 99948-7649",
     "⭐ Editorial do Dia: nova crônica toda manhã às 6h em COLUNAS",
     "📢 Anuncie no HiperHits - fale com a redação",
     "🔭 Ufologia, Astrologia e Ciência agora em COLUNAS & Mistérios"
