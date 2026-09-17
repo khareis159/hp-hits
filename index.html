@@ -605,7 +605,18 @@ body {
   .icon-btn svg { width: 16px; height: 16px; }
   .masthead-controls .btn { padding: 7px 11px; font-size: 12px; }
 
-  .masthead-top { padding: 8px 16px; font-size: 11.5px; gap: 8px; }
+    .masthead-top {
+    padding: 8px 16px;
+    font-size: 11.5px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .apex-counter-hub {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
+  }
 
   .nav-editorias { padding: 0 14px 10px; }
   .nav-chip { padding: 6px 11px; font-size: 12px; }
@@ -749,7 +760,7 @@ body {
   padding:10px;
   border-radius:6px;
   border:1px solid var(--border-strong);
-  background:var(--bg-primary);
+  background:var(--paper);
   white-space:pre-wrap;
   box-sizing:border-box;
 }
@@ -778,7 +789,7 @@ body {
   color: #F4F0E6;
   font-size: 11.5px;
   letter-spacing: 0.04em;
-  height: 28px;
+  min-height: 28px;
   overflow: hidden;
   white-space: nowrap;
   display: block;
@@ -807,7 +818,6 @@ body {
   margin-bottom: 16px;
   box-shadow: 0 4px 12px rgba(184,145,43,0.15);
 }
-[data-theme="dark"].welcome-card h2 { font-family: var(--font-serif); font-size: 19px; margin: 0 0 6px; color: #3D2B00; }
 .welcome-card .welcome-meta { font-size: 11px; color: #8C6B20; margin-bottom: 8px; }
 .welcome-card p { font-size: 13.5px; line-height: 1.6; margin: 0; color: #5A4210; }
 
@@ -819,7 +829,7 @@ body {
 [data-theme="dark"] .welcome-card .welcome-meta { color: #D8B44C; }
 [data-theme="dark"] .welcome-card p { color: #F4E0B0; }
 .welcome-card h2 { font-family: var(--font-serif); font-size: 19px; margin: 0 0 6px; }
-.welcome-card.welcome-meta { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
+.welcome-card .welcome-meta { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
 
 </style>
 <script type="importmap">
@@ -1137,7 +1147,7 @@ body {
           </div>
 
         </div>
- 
+  </div>
      </section>
 
       <!-- Comentários -->
@@ -2640,6 +2650,7 @@ function handleArticlesUpdate(articles) {
     // Pulso de expiração: apenas re-renderiza com o estado atual
     renderFeed();
     renderTrending();
+    renderWelcomeCard();
     refreshAdminViewsIfOpen();
     return;
   }
@@ -2647,6 +2658,7 @@ function handleArticlesUpdate(articles) {
   renderEditoriaNav();
   renderFeed();
   renderTrending();
+  renderWelcomeCard();
   refreshAdminViewsIfOpen();
 }
 
@@ -2675,6 +2687,13 @@ async function bootstrap() {
   await CounterEngine.flushRetryQueue(store);
   initCoverPreview();
   initIAPromptGenerator();
+  initTicker();
+  initApexCounter({
+    storageKey: 'hphits_global_v1',
+    baseValue: 18450,
+    growthRate: 23,
+    startDate: '2026-09-01'
+  });
   window.addEventListener("beforeunload", () => liveUpdater.stop());
 }
 
@@ -2696,14 +2715,6 @@ function initApexCounter(config) {
     const gElem = document.getElementById('gCount');
     if (gElem) gElem.textContent = simulatedGlobal.toLocaleString('pt-BR');
 }
-// DNA do HPHits - CHAVE DIFERENTE DO CLASSIFICADOS
-initApexCounter({
-    storageKey: 'hphits_global_v1', 
-    baseValue: 18450,                         
-    growthRate: 23,                          
-    startDate: '2026-09-01'                  
-});
-
 // ADD 7 - Ticker editável via localStorage
 function getTickerMessages() {
   const saved = localStorage.getItem('hphits_ticker_v1');
@@ -2720,8 +2731,13 @@ let TICKER_MESSAGES = getTickerMessages();
 function initTicker() {
   const track = document.getElementById('tickerTrack');
   if (!track) return;
-  const text = TICKER_MESSAGES.join(" • ") + " • ";
-  track.textContent = text + text;
+  const base = TICKER_MESSAGES.join(" • ") + " • ";
+  let full = base + base;
+  const viewportW = Math.max(window.innerWidth || 0, 800);
+  while (full.length < viewportW * 2) {
+    full += base;
+  }
+  track.textContent = full;
   track.style.animation = 'none';
   void track.offsetWidth;
   track.style.animation = 'ticker-scroll 50s linear infinite';
@@ -2766,14 +2782,7 @@ function renderWelcomeCard() {
     </div>`;
   mount.querySelector('.welcome-card')?.addEventListener('click', () => openArticleWindow(welcome.id));
 }
-
-initTicker();
 setTimeout(renderWelcomeCard, 500);
-const _oldRenderFeed = window.renderFeed;
-window.renderFeed = function() {
-  if (typeof _oldRenderFeed === 'function') _oldRenderFeed();
-  renderWelcomeCard();
-};
 </script>
 </body>
 </html>
