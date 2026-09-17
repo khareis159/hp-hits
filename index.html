@@ -801,13 +801,13 @@ body {
 .ticker-track {
   display: inline-block;
   white-space: nowrap;
-  padding-left: 100%;
+  padding-left: 30%;
   will-change: transform;
-  animation: ticker-scroll 60s linear infinite;
+  animation: ticker-scroll 40s linear infinite;
 }
 @keyframes ticker-scroll {
   0%   { transform: translateX(0); }
-  100% { transform: translateX(-180%); }
+  100% { transform: translateX(-200%); }
 }
 .welcome-card {
   background: linear-gradient(135deg, #FFF8E1 0%, #FFFFFF 100%);
@@ -2734,7 +2734,7 @@ function initTicker() {
   track.textContent = text;
   track.style.animation = 'none';
   void track.offsetWidth;
-  track.style.animation = 'ticker-scroll 60s linear infinite';
+  track.style.animation = 'ticker-scroll 40s linear infinite';
 }
 function saveTickerMessages() {
   const input = document.getElementById('tickerInput');
