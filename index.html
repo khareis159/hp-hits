@@ -1205,9 +1205,9 @@ let firestoreFns = null;
 async function initFirebaseIfConfigured() {
   if (!CLOUD_MODE_ENABLED) return false;
   try {
-    const [appMod, firestoreMod] = await Promise.all([
-      import("https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"),
-      import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js")
+      const [appMod, firestoreMod] = await Promise.all([
+      import("firebase/app"),
+      import("firebase/firestore")
     ]);
     const app = appMod.initializeApp(firebaseConfig);
     firestoreDb = firestoreMod.getFirestore(app);
@@ -1331,7 +1331,7 @@ const store = new DataStore();
    js/modules/auth.js — AuthManager
    ------------------------------------------------------------------------- */
 class AuthManager {
-  static ADMIN_KEY_HASH = "b7f7b1c0f6f1a2f6a8f1a0d9e2d9c6b1a2c3d4e5f6071829a3b4c5d6e7f80912";
+  static ADMIN_KEY_HASH = "30aef35464fc491d97e4be03c3a10f091bf4e9b0ee3675f3a7be9b135a306ea2";
   static MAX_ATTEMPTS = 5;
   static LOCKOUT_MS = 30000;
 
@@ -1365,7 +1365,7 @@ class AuthManager {
   static async validateAdmin(keyInput) {
     if (this.isLockedOut()) return false;
     const inputHash = await this._sha256(keyInput || "");
-    const knownHash = await this._sha256("jnhits2026");
+    const knownHash = this.ADMIN_KEY_HASH;
     const ok = inputHash === knownHash;
     const state = this._getAttemptState();
     if (ok) {
@@ -1669,11 +1669,12 @@ class IOManager {
         if (!item.media) item.media = { images: [], videos: [], attachments: [] };
         if (!item.media.images) item.media.images = [];
         if (!item.media.images[0]) { item.media.images[0] = getAutoCoverForCategory(item.category || 'TECNOLOGIA'); } else { item.media.images[0] = normalizeCoverImage(item.media.images[0], item.category); }
-        if (item.lifetimeHours === undefined) item.lifetimeHours = 48;       
+        if (item.lifetimeHours === undefined) item.lifetimeHours = 48;
+        if (item.lifetimeHours !== null && isNaN(Number(item.lifetimeHours))) item.lifetimeHours = 48;
         if (item.expiresAt === undefined) {
           item.expiresAt = item.lifetimeHours === null
             ? null
-            : new Date(new Date(item.createdAt).getTime() + item.lifetimeHours * 3600 * 1000).toISOString();
+            : new Date(new Date(item.createdAt).getTime() + Number(item.lifetimeHours) * 3600 * 1000).toISOString();
         }
         if (item.sourceUrl === undefined) item.sourceUrl = "";
         results.imported.push(item);
@@ -1872,7 +1873,7 @@ function buildSeedArticles() {
     category: s.category,
     media: { images: [], videos: [], attachments: [] },
     aiMetrics: { relevanceScore: 0, trendingTopic: false, aiSummary: "" },
-    stats: { viewsLocal: 0, viewsGlobal: s.views, shares: s.shares },
+    stats: { viewsGlobal: s.views, shares: s.shares },
     comments: Array.from({ length: s.comments }).map((_, ci) => ({
       commentId: uid("cm"),
       userName: ["Leitor Anônimo", "João P.", "Ana L.", "Sérgio M."][ci % 4],
@@ -1947,6 +1948,8 @@ function getFilteredArticles() {
       const bx = b.expiresAt ? new Date(b.expiresAt).getTime() : 0;
       return bx - ax;
     }
+    const pinDiff = (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
+    if (pinDiff !== 0) return pinDiff;
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
 }
@@ -2307,7 +2310,7 @@ async function saveArticleFromEditor() {
     category: document.getElementById("fieldCategory").value,
     media: { images: [normalizeCoverImage(document.getElementById("fieldCoverImage").value.trim(), document.getElementById("fieldCategory").value)], videos: [], attachments: [] },
     aiMetrics: existing?.aiMetrics || { relevanceScore: 0, trendingTopic: false, aiSummary: "" },
-    stats: existing?.stats || { viewsLocal: 0, viewsGlobal: 0, shares: 0 },
+    stats: existing?.stats || { viewsGlobal: 0, shares: 0 },
     comments: existing?.comments || [],
     lifetimeHours,
     expiresAt,
@@ -2394,15 +2397,12 @@ function initIAPromptGenerator(){
   const btnGen=document.getElementById("btnGeneratePrompt");
   const btnCopy=document.getElementById("btnCopyPrompt");
   if(!btnGen ||!cat ||!qty ||!scope ||!box){ console.warn("IA Generator: elementos não encontrados"); return; }
-
-  const coverMap={ESPORTE:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&q=80&fit=crop",ARTE:"https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&q=80&fit=crop",CINEMA:"https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80&fit=crop",POLICIAL:"https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=800&q=80&fit=crop",ECONOMIA:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80&fit=crop",POLITICA:"https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&q=80&fit=crop",TECNOLOGIA:"https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80&fit=crop",COLUNAS:"https://images.unsplash.com/photo-1532012197267-da84d127e765?w=800&q=80&fit=crop"};
-  
-  btnGen.addEventListener("click",()=>{
+   btnGen.addEventListener("click",()=>{
     try{
       const c=cat.value||"TECNOLOGIA";const q=qty.value||"5";const s=scope.value||"NACIONAL";const t=(topic.value||"").trim();
       const todayISO = new Date().toISOString().slice(0,10);
       const today = new Date().toLocaleDateString("pt-BR") + " (" + todayISO + ")";
-      const cover=coverMap[c]||coverMap.TECNOLOGIA;
+      const cover=getAutoCoverForCategory(c);
       const prompt=`Você é REDATOR-CHEFE do portal HiperHits, data ${today}. Gere EXATAMENTE ${q} notícias REAIS, ATUAIS de hoje (${today}) sobre ${c}, escopo ${s}${t?`, FOCO: ${t}`:""}. SAÍDA: APENAS array JSON puro, sem markdown. Cada objeto: {"title":"90 chars máx","summary":"160-200 chars","content":"<p>Lead</p><h3>Sub</h3><p>450+ palavras, só <p> e <h3></p>","category":"${c}","scope":"${s}","lifetimeHours":48,"media":{"images":["URL Unsplash real sobre o tema, se não achar use ${cover}"]},"sourceUrl":""}. Nunca deixe media vazio. Estilo imparcial HiperHits. RETORNE SÓ JSON.`;
       box.value=prompt;
       box.focus();
@@ -2446,7 +2446,8 @@ function initIAPromptGenerator(){
           if(!item.media) item.media = { images: [] };
           if(!item.media.images?.[0]) item.media.images = [getAutoCoverForCategory(item.category||'TECNOLOGIA')];
           if(item.lifetimeHours===undefined) item.lifetimeHours=48;
-          if(item.expiresAt===undefined) item.expiresAt = item.lifetimeHours===null?null:new Date(new Date(item.createdAt).getTime()+item.lifetimeHours*3600*1000).toISOString();
+          if(item.lifetimeHours!==null && isNaN(Number(item.lifetimeHours))) item.lifetimeHours=48;
+          if(item.expiresAt===undefined) item.expiresAt = item.lifetimeHours===null?null:new Date(new Date(item.createdAt).getTime()+Number(item.lifetimeHours)*3600*1000).toISOString();
           await store.upsert(item);
           ok++;
         }
